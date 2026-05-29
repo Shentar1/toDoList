@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model jobs {
+  id              Int       @id
+  job_description String?
+  list_id         Int
+  status          String?   @db.VarChar
+  time_created    DateTime? @db.Timestamp(6)
+  lists           lists     @relation(fields: [list_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "job_list")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model lists {
+  id           Int       @id
+  list_name    String    @db.VarChar
+  user_id      Int
+  time_created DateTime? @db.Timestamp(6)
+  jobs         jobs[]
+  users        users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_lists")
+}
+
+model users {
+  id           Int       @id @default(autoincrement())
+  username     String    @db.VarChar
+  password     String    @db.VarChar
+  time_created DateTime? @db.Timestamp(6)
+  role         String?   @db.VarChar
+  lists        lists[]
+}
