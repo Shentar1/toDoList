@@ -4,7 +4,7 @@ import { Job } from "./jobsModels";
 import { List } from "./listsModels";
 
 export async function getListsByUser(userid: number): Promise<List[]>{
-    if(!userid || isNaN(userid)){
+    if(userid !=0 && !userid || isNaN(userid)){
         throw new BadRequestError('Userid is required');
     }
     try {

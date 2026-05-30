@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams;
-        const userIdParam = searchParams.get('userId') ?? ''; // e.g. `/api/search?query=hello`
+        const userIdParam = searchParams.get('userId') ?? '';
         const userId: number = parseInt(userIdParam);
 
         if(!userIdParam || isNaN(userId)){
