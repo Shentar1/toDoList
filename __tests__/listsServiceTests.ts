@@ -1,15 +1,25 @@
 import '@testing-library/jest-dom'
-import {getListsByUser, validateList} from '../lib/services/listsService';
+import {createList, getListsByUser, validateList} from '../lib/services/listsService';
+import {List} from '../lib/services/listsModels';
+import {Job} from '../lib/services/jobsModels'
 import prisma from '../lib/prisma';
+import { DatabaseError } from '../lib/errors/errors';
 jest.mock('../lib/prisma',() => ({
     lists: {
-        findMany: jest.fn()
+        findMany: jest.fn(),
+        create: jest.fn(),
+    },
+    jobs:{
+        findMany: jest.fn(),
+        create:jest.fn(),
     }
 }));
+
 describe('validateListItem',()=>{
     it('should return true for valid list name and id',async ()=>{
         const list = {
             id: 0,
+            userId:1,
             name: 'My List',
             jobs: []
         }
@@ -19,6 +29,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 'My List',
+            userId:1,
             jobs: [
                 {
                     id: 0,
@@ -33,6 +44,7 @@ describe('validateListItem',()=>{
         const list = {
             id: undefined as unknown as number,
             name: 'My List',
+            userId:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
@@ -41,6 +53,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 'abc' as unknown as number, 
             name: 'My List',
+            userId:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
@@ -49,6 +62,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: '   ',
+            userId:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
@@ -57,6 +71,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: undefined as unknown as string,
+            userId:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
@@ -65,6 +80,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 123 as unknown as string,
+            userId:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
@@ -74,6 +90,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 'My List',
+            userId:1,
             jobs: [
                 {
                     id: 0,
@@ -88,6 +105,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 'My List',
+            userId:1,
             jobs: [
                 {
                     id: 0,
@@ -102,6 +120,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 'My List',
+            userId:1,
             jobs: [
                 {
                     id: 0,
@@ -116,6 +135,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 'My List',
+            userId:1,
             jobs: [
                 {
                     id: 0,
@@ -130,6 +150,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 'My List',
+            userId:1,
             jobs: [
                 {
                     id: 0,
@@ -144,6 +165,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 'My List',
+            userId:1,
             jobs: [
                 {
                     id: 0,
@@ -158,6 +180,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 'My List',
+            userId:1,
             jobs: [
                 {
                     id: 'abc' as unknown as number,
@@ -172,6 +195,7 @@ describe('validateListItem',()=>{
         const list = {
             id: 0,
             name: 'My List',
+            userId:1,
             jobs: [
                 {
                     id: undefined as unknown as number,
@@ -185,16 +209,7 @@ describe('validateListItem',()=>{
 });
 
 describe('getListsByUser',()=>{
-    /*
-        TODO: Since getListsByUser interacts with the database, we should mock the database calls to test the function in isolation.
-        We can use a library like jest.mock to mock the prisma client and simulate different scenarios, such as returning a list of lists,
-        returning an empty array, or throwing an error. This way we can ensure that our function behaves correctly under different conditions
-        without relying on the actual database.
-    */
     it('should return an array of lists for a valid user id',async ()=>{
-        // This test would require mocking the database response to return a list of lists for the given user id
-        // For example, we could mock the prisma.lists.findMany method to return a predefined array of lists
-        // Then we would call getListsByUser with a valid user id and expect it to return the mocked array of lists
         (prisma.lists.findMany as jest.Mock).mockResolvedValueOnce([
             {
                 id: 1,  
@@ -236,8 +251,6 @@ describe('getListsByUser',()=>{
         ]);
     });
     it('should return an empty array if no lists are found for the user',async ()=>{
-        // This test would require mocking the database response to return an empty array for the given user id
-        // Then we would call getListsByUser with a valid user id and expect it to return an empty array
         (prisma.lists.findMany as jest.Mock).mockResolvedValueOnce([]);
         
         const lists = await getListsByUser(0);
@@ -257,5 +270,21 @@ describe('createList',()=>{
      * We can simulate different scenarios, such as successful creation of a list, failure due to invalid data, or database errors. 
      * This way we can ensure that our function behaves correctly under different conditions without relying on the actual database.
      */
-    
+    it('should create a list successfully with valid data',async ()=>{
+        // This test would involve mocking the database call to simulate a successful list 
+        // creation and then asserting that the function returns true.
+        (prisma.lists.create as jest.Mock).mockReturnValueOnce({name: 'My List', id: 0, userId:1, jobs:[{id:0, job_description:'todo'}]} as List)
+
+        const result = await createList({name: 'My List', id: -1, jobs:[{id:-1, job_description:'todo'}]} as List, 1 );
+        expect(result).toBe(true);
+    });
+    it('should fail to create a list with invalid data',async ()=>{
+        // This test would involve passing invalid data to the createList function and 
+        // asserting that it returns false or throws an error as expected.
+        (prisma.lists.create as jest.Mock).mockImplementationOnce(()=>{
+            throw new Error();
+        })
+        //const result = await createList({name: 'My List', id: -1, jobs:[{id:-1, job_description:'todo'}]} as List, 1 );
+        expect(createList({name: 'My List', id: -1, jobs:[{id:-1, job_description:'todo'}]} as List, 1 )).rejects.toThrow(DatabaseError)
+    });
 })

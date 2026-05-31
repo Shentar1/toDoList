@@ -1,4 +1,5 @@
-import { BadRequestError, NotFoundError, ValidationError } from "../errors/errors";
+import { jobs } from "@/app/generated/prisma/client";
+import { BadRequestError, NotFoundError, ValidationError, DatabaseError } from "../errors/errors";
 import { handleError } from "../errors/handleError";
 import prisma from "../prisma";
 import { Job } from "./jobsModels";
@@ -61,5 +62,22 @@ export async function validateList(list:List): Promise<boolean>{
 }
 
 export async function createList(list: List, userId: number):Promise<boolean>{
-    return true;
+        //Attempts to create the list and its jobs in the database. If an error occurs, it catches the error and throws an error,
+        //indicating that the list was not created successfully.
+    try{
+        const newList = await prisma.lists.create({
+            data: {
+                list_name: list.name,
+                user_id: userId,
+                jobs: {
+                    createMany:{
+                        data: list.jobs
+                    }
+                }
+            }
+        });
+        return true;
+    }catch(error){
+        throw new DatabaseError("Database Error: Failed to create list");
+    }
 }

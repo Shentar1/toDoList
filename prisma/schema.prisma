@@ -9,7 +9,7 @@ datasource db {
 
 /// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
 model jobs {
-  id              Int       @id
+  id              Int       @id @default(autoincrement())
   job_description String?
   list_id         Int
   status          String?   @db.VarChar
@@ -19,7 +19,7 @@ model jobs {
 
 /// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
 model lists {
-  id           Int       @id
+  id           Int       @id @default(autoincrement())
   list_name    String    @db.VarChar
   user_id      Int
   time_created DateTime? @db.Timestamp(6)
