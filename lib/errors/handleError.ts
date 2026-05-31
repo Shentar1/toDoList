@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { BadRequestError, NotFoundError } from "./errors";
+import { BadRequestError, NotFoundError, ValidationError } from "./errors";
 
 export function handleError(error: unknown): NextResponse {
     if (error instanceof NotFoundError) {
@@ -16,6 +16,12 @@ export function handleError(error: unknown): NextResponse {
         );
     }
 
+    if (error instanceof ValidationError) {
+        return NextResponse.json(
+            { error: error.message },
+            { status: 422 }
+        );
+     }
     // default
     return NextResponse.json(
         { error: "An unexpected error occurred :(" },

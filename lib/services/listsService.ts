@@ -1,4 +1,5 @@
-import { BadRequestError } from "../errors/errors";
+import { BadRequestError, NotFoundError, ValidationError } from "../errors/errors";
+import { handleError } from "../errors/handleError";
 import prisma from "../prisma";
 import { Job } from "./jobsModels";
 import { List } from "./listsModels";
@@ -16,7 +17,9 @@ export async function getListsByUser(userid: number): Promise<List[]>{
                 jobs: true
             }
         });
-
+        if(lists.length === 0){
+            return [];
+        }
         return lists.map(list => ({
             id: list.id,
             name: list.list_name,
@@ -27,9 +30,36 @@ export async function getListsByUser(userid: number): Promise<List[]>{
             } as Job)),
         }));
     } catch (error) {
-        switch(error){
-            default:
-                throw new Error('Failed to fetch jobs');
-        }
+        throw error;
     }
+}
+export async function validateList(list:List): Promise<boolean>{
+    try{
+        let name = list.name;
+        let jobs = list.jobs;
+        let id = list.id;
+        //id is not needed for creation, but useful for updates, so we will allow it to be 0 or a valid number, but not undefined or NaN
+        let idValid = !isNaN(id) && (id === 0 || id);
+        //name must be a string with a non-whitespace character
+        let nameValid = typeof name === 'string' && name.trim().length > 0;
+        //each job must have a non-empty description and status, and a valid id
+        //not needed for new jobs, but useful for updates, so we will allow it to be 0 or a valid number, but not undefined or NaN
+        let jobsValid = Array.isArray(jobs) && jobs.every(job => {
+            return typeof job.job_description === 'string' && job.job_description.trim().length > 0 &&
+                typeof job.status === 'string' && job.status.trim().length > 0 && !isNaN(job.id) && (job.id === 0 || job.id);
+        });
+        if(idValid && nameValid && jobsValid){
+            return true;
+        }else{
+            return false;
+        }
+    }catch(error){
+        //if any unexpected error occurs during validation, we will consider the data invalid
+        //this error is specifically for catching errors in validation logic not due to invaid data
+        throw new ValidationError("Failed to validate list data");
+    }
+}
+
+export async function createList(list: List, userId: number):Promise<boolean>{
+    return true;
 }

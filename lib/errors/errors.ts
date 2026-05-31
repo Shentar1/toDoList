@@ -11,3 +11,9 @@ export class NotFoundError extends Error {
     this.name = "NotFoundError";
   }
 }
+export class ValidationError extends Error {
+    constructor(message = "Validation Error") {
+        super(message);
+        this.name = "ValidationError";
+    }
+}
