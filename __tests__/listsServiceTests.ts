@@ -250,3 +250,12 @@ describe('getListsByUser',()=>{
         await expect(getListsByUser('abc' as unknown as number)).rejects.toThrow('Userid is required');
     });
 });
+
+describe('createList',()=>{
+    /**
+     * TODO: Similar to getListsByUser, we should mock the database calls in createList to test the function in isolation. 
+     * We can simulate different scenarios, such as successful creation of a list, failure due to invalid data, or database errors. 
+     * This way we can ensure that our function behaves correctly under different conditions without relying on the actual database.
+     */
+    
+})
