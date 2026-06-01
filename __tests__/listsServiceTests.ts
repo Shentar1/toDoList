@@ -1,10 +1,13 @@
 import '@testing-library/jest-dom'
 import {createList, getListsByUser, validateList} from '../lib/services/listsService';
 import {List} from '../lib/services/listsModels';
-import {Job} from '../lib/services/jobsModels'
 import prisma from '../lib/prisma';
 import { DatabaseError } from '../lib/errors/errors';
 jest.mock('../lib/prisma',() => ({
+    users:{
+        findMany:jest.fn(),
+        create: jest.fn(),
+    },
     lists: {
         findMany: jest.fn(),
         create: jest.fn(),

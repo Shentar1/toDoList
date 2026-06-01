@@ -1,10 +1,14 @@
-import { BadRequestError, NotFoundError, ValidationError, DatabaseError } from "../errors/errors";
-import { handleError } from "../errors/handleError";
+import { BadRequestError, ValidationError, DatabaseError } from "../errors/errors";
 import prisma from "../prisma";
 import { Job } from "./jobsModels";
 import { validateJob } from "./jobsService"
 import { List } from "./listsModels";
-
+/**
+ * 
+ * @param userid 
+ * @returns Promise that resolves to an array of lists associated to a user id
+ * @throws BadRequestError if there are issues with the user id
+ */
 export async function getListsByUser(userid: number): Promise<List[]>{
     if(userid !=0 && !userid || isNaN(userid)){
         throw new BadRequestError('User id is required');
@@ -36,6 +40,12 @@ export async function getListsByUser(userid: number): Promise<List[]>{
         throw error;
     }
 }
+/**
+ * 
+ * @param list a list object that is to be validated
+ * @returns true if the list is valid
+ * @throws if the list is invalid 
+ */
 export async function validateList(list:List): Promise<boolean>{
     try{
         let name = list.list_name;
@@ -55,21 +65,28 @@ export async function validateList(list:List): Promise<boolean>{
         }else{
             return false;
         }
-    }catch(error){
+    }catch{
         //if any unexpected error occurs during validation, we will consider the data invalid
         //this error is specifically for catching errors in validation logic not due to invaid data
         throw new ValidationError("Failed to validate list data");
     }
 }
-
+/** 
+* Attempts to create the list and its jobs in the database. If an error occurs, it catches the error and throws an error 
+* indicating that the list was not created successfully.
+* @param list a list object that has been validated
+* @param userId a user id that has been validated and corresponds to the owner of the list object
+* @returns a promise that resolves to true if the operation is successful
+* @throws if the list is invalid 
+*/
 export async function createList(list: List, userId: number):Promise<boolean>{
-        //Attempts to create the list and its jobs in the database. If an error occurs, it catches the error and throws an error,
-        //indicating that the list was not created successfully.
+        
     try{
-        const newList = await prisma.lists.create({
+        await prisma.lists.create({
             data: {
                 list_name: list.list_name,
                 user_id: userId,
+                time_created:new Date(Date.now()).toUTCString(),
                 jobs: {
                     createMany:{
                         data: list.jobs
@@ -78,7 +95,57 @@ export async function createList(list: List, userId: number):Promise<boolean>{
             }
         });
         return true;
-    }catch(error){
+    }catch{
+        throw new DatabaseError("Database Error: Failed to create list");
+    }
+}
+/** 
+* Attempts to update a list item and its jobs in the database. If an error occurs, it catches the error and throws an error 
+* indicating that the list was not created successfully.
+* @param list a list object that has been validated
+* @param userId a user id that has been validated and corresponds to the owner of the list object
+* @returns a promise that resolves to true if the operation is successful
+* @throws if the list is invalid 
+*/
+export async function updateList(list:List, userId: number):Promise<boolean>{
+    //TODO: add validation that the list id to be updated belongs to the current user
+    try{
+        prisma.lists.update({
+            data:{
+                list_name: list.list_name,
+                user_id:userId,
+                jobs:{
+                    createMany:{
+                        data: list.jobs
+                    }
+                }
+            },
+            where:{
+                id:list.id
+            }
+        })
+        return true;
+    }catch{
+        throw new DatabaseError("Database Error: Failed to create list");
+    }
+}
+/** 
+* Attempts to create the list and its jobs in the database. If an error occurs, it catches the error and throws an error 
+* indicating that the list was not created successfully.
+* @param listId a unique identifier for the list item to be deleted
+* @returns a promise that resolves to true if the operation is successful
+* @throws if the list is invalid 
+*/
+export async function deleteList(listId:number):Promise<boolean>{
+    //TODO: add validation that the list id to be deleted belongs to the current user
+    try{
+        prisma.lists.delete({
+            where:{
+                id:listId,
+            }
+        })
+        return true;
+    }catch{
         throw new DatabaseError("Database Error: Failed to create list");
     }
 }

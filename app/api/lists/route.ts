@@ -1,21 +1,13 @@
 import { BadRequestError } from '@/lib/errors/errors';
 import { handleError } from '@/lib/errors/handleError';
-import { getJobsByListId } from '@/lib/services/jobsService';
-import { List } from '@/lib/services/listsModels';
-import { getListsByUser, validateList, createList } from '@/lib/services/listsService';
-import { createValidationSampleTracking } from 'next/dist/server/app-render/instant-validation/instant-samples';
+import { getListsByUser, validateList, createList, updateList } from '@/lib/services/listsService';
 import { NextRequest, NextResponse } from 'next/server';
+import { parseUserId } from '@/lib/services/usersSerivce';
 
 // Get all lists - GET api/lists?userid=<userid>
 export async function GET(request: NextRequest) {
     try {
-        const searchParams = request.nextUrl.searchParams;
-        const userIdParam = searchParams.get('userId') ?? '';
-        const userId: number = parseInt(userIdParam);
-
-        if(!userIdParam || isNaN(userId)){
-            throw new BadRequestError("user id is required")
-        }
+        const userId = await parseUserId(request)
 
         const lists = await getListsByUser(userId);
 
@@ -28,15 +20,7 @@ export async function GET(request: NextRequest) {
 //Create a new list - POST api/lists (w/ JSON payload)
 export async function POST(request: NextRequest) {
     try {
-        //get the userId who the the list belongs to
-        const searchParams = request.nextUrl.searchParams;
-        const userIdParam = searchParams.get('userId') ?? '';
-        const userId: number = parseInt(userIdParam);
-
-        //throew a bad request error if the userid is not valid
-        if(!userIdParam || isNaN(userId)){
-            throw new BadRequestError("user id is required")
-        }
+        const userId = await parseUserId(request)
         //take the POST body
         const upload = await request.json();
         //require an upload body
@@ -50,7 +34,6 @@ export async function POST(request: NextRequest) {
         }else{
             throw new BadRequestError("Malformed or Invalid Data");
         }
-        // Validate body here (e.g., check for required fields)
     }
     catch(error){
         handleError(error);
@@ -59,18 +42,29 @@ export async function POST(request: NextRequest) {
 //update list - PUT api/lists/<listId> (w/ JSON payload)
 export async function PUT(request: NextRequest) {
     try {
-        const body = await request.json();
-        // Validate body here (e.g., check for required fields)
+        const userId = await parseUserId(request)
+        //take the POST body
+        const upload = await request.json();
+        //require an upload body
+        if(!upload||typeof upload !== 'object'){
+            throw new BadRequestError("A list is required")
+        }
+        //validate the list data and throw an error if the data is invalid
+        if(await validateList(upload)){
+            //create the list here
+            updateList(upload, userId);
+        }else{
+            throw new BadRequestError("Malformed or Invalid Data");
+        }
     }
     catch(error){
-        return handleError(error);
+        handleError(error);
     }
 }
 //delete list - DELETE api/lists/<listId>
 export async function DELETE(request: NextRequest) {
     try {
-        const body = await request.json();
-        // Validate body here (e.g., check for required fields)
+        
     }
     catch(error){
         return handleError(error);
