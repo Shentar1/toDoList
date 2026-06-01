@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
         const userId: number = parseInt(userIdParam);
 
         if(!userIdParam || isNaN(userId)){
-            throw new BadRequestError("userId is required")
+            throw new BadRequestError("user id is required")
         }
 
         const lists = await getListsByUser(userId);
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
         //throew a bad request error if the userid is not valid
         if(!userIdParam || isNaN(userId)){
-            throw new BadRequestError("userId is required")
+            throw new BadRequestError("user id is required")
         }
         //take the POST body
         const upload = await request.json();
@@ -48,12 +48,12 @@ export async function POST(request: NextRequest) {
             //create the list here
             createList(upload, userId);
         }else{
-            throw new BadRequestError("Invalid list data")
+            throw new BadRequestError("Malformed or Invalid Data");
         }
         // Validate body here (e.g., check for required fields)
     }
     catch(error){
-        return handleError(error);
+        handleError(error);
     }
 }
 //update list - PUT api/lists/<listId> (w/ JSON payload)

@@ -21,7 +21,8 @@ export async function getJobsByListId(userid: number, listId: number):Promise<Jo
         return jobs.map(job => ({
             id: job.id,
             job_description: job.job_description ?? "",
-            status: job.status ?? ""
+            status: job.status ?? "",
+            list_id: job.list_id
         }));
     }catch (error) {
         throw error;

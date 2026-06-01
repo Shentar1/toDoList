@@ -7,7 +7,7 @@ import { List } from "./listsModels";
 
 export async function getListsByUser(userid: number): Promise<List[]>{
     if(userid !=0 && !userid || isNaN(userid)){
-        throw new BadRequestError('Userid is required');
+        throw new BadRequestError('User id is required');
     }
     try {
         const lists = await prisma.lists.findMany({
@@ -23,11 +23,13 @@ export async function getListsByUser(userid: number): Promise<List[]>{
         }
         return lists.map(list => ({
             id: list.id,
-            name: list.list_name,
+            list_name: list.list_name,
+            user_id: list.user_id,
             jobs: list.jobs.map(j => ({
                 id: j.id,
                 job_description: j.job_description,
-                status: j.status
+                status: j.status,
+                list_id: j.list_id
             } as Job)),
         }));
     } catch (error) {
@@ -36,7 +38,7 @@ export async function getListsByUser(userid: number): Promise<List[]>{
 }
 export async function validateList(list:List): Promise<boolean>{
     try{
-        let name = list.name;
+        let name = list.list_name;
         let jobs = list.jobs;
         let id = list.id;
         //id is not needed for creation, but useful for updates, so we will allow it to be 0 or a valid number, but not undefined or NaN
@@ -66,7 +68,7 @@ export async function createList(list: List, userId: number):Promise<boolean>{
     try{
         const newList = await prisma.lists.create({
             data: {
-                list_name: list.name,
+                list_name: list.list_name,
                 user_id: userId,
                 jobs: {
                     createMany:{

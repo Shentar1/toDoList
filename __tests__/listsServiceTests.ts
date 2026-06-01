@@ -16,11 +16,11 @@ jest.mock('../lib/prisma',() => ({
 }));
 
 describe('validateListItem',()=>{
-    it('should return true for valid list name and id',async ()=>{
+    it('should return true for valid list list_name and id',async ()=>{
         const list = {
             id: 0,
-            userId:1,
-            name: 'My List',
+            user_id:1,
+            list_name: 'My List',
             jobs: []
         }
         expect(await validateList(list)).toBe(true);
@@ -28,13 +28,14 @@ describe('validateListItem',()=>{
     it('should return true for valid list with jobs',async ()=>{
         const list = {
             id: 0,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: [
                 {
                     id: 0,
                     job_description: 'My Job',
-                    status: 'pending'
+                    status: 'pending',
+                    list_id:0
                 }
             ]
         }
@@ -43,8 +44,8 @@ describe('validateListItem',()=>{
     it('should return false for invalid list id',async ()=>{
         const list = {
             id: undefined as unknown as number,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
@@ -52,35 +53,35 @@ describe('validateListItem',()=>{
     it('should return false for non-numeric list id',async ()=>{
         const list = {
             id: 'abc' as unknown as number, 
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
     });
-    it('should return false for empty list name',async ()=>{
+    it('should return false for empty list list_name',async ()=>{
         const list = {
             id: 0,
-            name: '   ',
-            userId:1,
+            list_name: '   ',
+            user_id:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
     });
-    it('should return false for undefined list name',async ()=>{
+    it('should return false for undefined list list_name',async ()=>{
         const list = {
             id: 0,
-            name: undefined as unknown as string,
-            userId:1,
+            list_name: undefined as unknown as string,
+            user_id:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
     });
-    it('should return false for non-string list name', async ()=>{
+    it('should return false for non-string list list_name', async ()=>{
         const list = {
             id: 0,
-            name: 123 as unknown as string,
-            userId:1,
+            list_name: 123 as unknown as string,
+            user_id:1,
             jobs: []
         }
         expect(await validateList(list)).toBe(false);
@@ -89,13 +90,14 @@ describe('validateListItem',()=>{
     it('should return false for job with empty description',async ()=>{
         const list = {
             id: 0,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: [
                 {
                     id: 0,
                     job_description: '   ',
-                    status: 'pending'
+                    status: 'pending',
+                    list_id:0,
                 }
             ]
         }
@@ -104,13 +106,14 @@ describe('validateListItem',()=>{
     it('should return false for job with undefined description',async ()=>{
         const list = {
             id: 0,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: [
                 {
                     id: 0,
                     job_description: undefined as unknown as string,
-                    status: 'pending'
+                    status: 'pending',
+                    list_id:0
                 }
             ]
         }
@@ -119,13 +122,14 @@ describe('validateListItem',()=>{
     it('should return false for job with non-string description',async ()=>{
         const list = {
             id: 0,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: [
                 {
                     id: 0,
                     job_description: 123 as unknown as string,
-                    status: 'pending'
+                    status: 'pending',
+                    list_id:0
                 }
             ]
         }
@@ -134,13 +138,14 @@ describe('validateListItem',()=>{
     it('should return false for job with empty status',async ()=>{
         const list = {
             id: 0,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: [
                 {
                     id: 0,
                     job_description: 'My Job',
-                    status: '   '
+                    status: '   ',
+                    list_id:0
                 }
             ]
         }
@@ -149,13 +154,14 @@ describe('validateListItem',()=>{
     it('should return false for job with undefined status',async ()=>{
         const list = {
             id: 0,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: [
                 {
                     id: 0,
                     job_description: 'My Job',
-                    status: undefined as unknown as string
+                    status: undefined as unknown as string,
+                    list_id:0
                 }
             ]
         }
@@ -164,13 +170,14 @@ describe('validateListItem',()=>{
     it('should return false for job with non-string status',async ()=>{
         const list = {
             id: 0,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: [
                 {
                     id: 0,
                     job_description: 'My Job',
-                    status: 123 as unknown as string
+                    status: 123 as unknown as string,
+                    list_id:0
                 }
             ]
         }
@@ -179,13 +186,14 @@ describe('validateListItem',()=>{
     it('should return false for job with invalid id',async ()=>{
         const list = {
             id: 0,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: [
                 {
                     id: 'abc' as unknown as number,
                     job_description: 'My Job',
-                    status: 'pending'
+                    status: 'pending',
+                    list_id:0
                 }
             ]
         }
@@ -194,13 +202,14 @@ describe('validateListItem',()=>{
     it('should return false for job with undefined id',async ()=>{
         const list = {
             id: 0,
-            name: 'My List',
-            userId:1,
+            list_name: 'My List',
+            user_id:1,
             jobs: [
                 {
                     id: undefined as unknown as number,
                     job_description: 'My Job',
-                    status: 'pending'
+                    status: 'pending',
+                    list_id:0
                 }
             ]
         }
@@ -210,7 +219,7 @@ describe('validateListItem',()=>{
 
 describe('getListsByUser',()=>{
     it('should return an array of lists for a valid user id',async ()=>{
-        (prisma.lists.findMany as jest.Mock).mockResolvedValueOnce([
+        const testList = [
             {
                 id: 1,  
                 list_name: 'My List 1',
@@ -219,7 +228,8 @@ describe('getListsByUser',()=>{
                     {
                         id: 1,
                         job_description: 'My Job 1',
-                        status: 'pending'
+                        status: 'pending',
+                        list_id:1
                     }
                 ]   
             },
@@ -229,26 +239,10 @@ describe('getListsByUser',()=>{
                 user_id: 1,
                 jobs: []
             }
-        ]);
-        const testlist = await getListsByUser(1);
-        expect(testlist).toEqual([
-            {
-                id: 1,
-                name: 'My List 1',
-                jobs: [
-                    {
-                        id: 1,
-                        job_description: 'My Job 1',
-                        status: 'pending'
-                    }
-                ]
-            },
-            {
-                id: 2,
-                name: 'My List 2',
-                jobs: []
-            }
-        ]);
+        ];
+        (prisma.lists.findMany as jest.Mock).mockResolvedValueOnce(testList);
+        const list = await getListsByUser(1);
+        expect(list).toEqual(testList);
     });
     it('should return an empty array if no lists are found for the user',async ()=>{
         (prisma.lists.findMany as jest.Mock).mockResolvedValueOnce([]);
@@ -257,10 +251,10 @@ describe('getListsByUser',()=>{
         expect(lists).toEqual([]);
     });
     it('should throw an error for an invalid user id',async ()=>{
-        await expect(getListsByUser(undefined as unknown as number)).rejects.toThrow('Userid is required');
+        await expect(getListsByUser(undefined as unknown as number)).rejects.toThrow('User id is required');
     });
     it('should throw an error for a non-numeric user id',async ()=>{
-        await expect(getListsByUser('abc' as unknown as number)).rejects.toThrow('Userid is required');
+        await expect(getListsByUser('abc' as unknown as number)).rejects.toThrow('User id is required');
     });
 });
 
@@ -273,9 +267,9 @@ describe('createList',()=>{
     it('should create a list successfully with valid data',async ()=>{
         // This test would involve mocking the database call to simulate a successful list 
         // creation and then asserting that the function returns true.
-        (prisma.lists.create as jest.Mock).mockReturnValueOnce({name: 'My List', id: 0, userId:1, jobs:[{id:0, job_description:'todo'}]} as List)
+        (prisma.lists.create as jest.Mock).mockReturnValueOnce({list_name: 'My List', id: 0, user_id:1, jobs:[{id:0, job_description:'todo'}]} as List)
 
-        const result = await createList({name: 'My List', id: -1, jobs:[{id:-1, job_description:'todo'}]} as List, 1 );
+        const result = await createList({list_name: 'My List', id: -1, jobs:[{id:-1, job_description:'todo'}]} as List, 1 );
         expect(result).toBe(true);
     });
     it('should fail to create a list with invalid data',async ()=>{
@@ -284,7 +278,7 @@ describe('createList',()=>{
         (prisma.lists.create as jest.Mock).mockImplementationOnce(()=>{
             throw new Error();
         })
-        //const result = await createList({name: 'My List', id: -1, jobs:[{id:-1, job_description:'todo'}]} as List, 1 );
-        expect(createList({name: 'My List', id: -1, jobs:[{id:-1, job_description:'todo'}]} as List, 1 )).rejects.toThrow(DatabaseError)
+        //const result = await createList({list_name: 'My List', id: -1, jobs:[{id:-1, job_description:'todo'}]} as List, 1 );
+        expect(createList({list_name: 'My List', id: -1, jobs:[{id:-1, job_description:'todo'}]} as List, 1 )).rejects.toThrow(DatabaseError)
     });
 })
