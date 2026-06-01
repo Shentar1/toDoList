@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import {Job} from './jobsModels';
 import { BadRequestError, NotFoundError } from '../errors/errors';
 import { List } from './listsModels';
+import { isValidElement } from 'react';
 
 
 export async function getJobsByListId(userid: number, listId: number):Promise<Job[]>{
@@ -25,4 +26,20 @@ export async function getJobsByListId(userid: number, listId: number):Promise<Jo
     }catch (error) {
         throw error;
     }
+}
+/**
+ * 
+ * @param job a potential job to be added of type Job
+ * @returns true if the job is valid, false if it is invalid
+ */
+export function validateJob(job:Job){
+    const id=job.id;
+    const job_description = job.job_description;
+    const status = job.status;
+
+    const idValid = !isNaN(id) && (id === 0 || id);
+    const job_descriptionValid = typeof job_description === 'string' && job_description.trim().length;
+    const statusValid = typeof status === 'string' && status.trim().length > 0;
+
+    return idValid && job_descriptionValid && statusValid;
 }

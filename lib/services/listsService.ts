@@ -1,8 +1,8 @@
-import { jobs } from "@/app/generated/prisma/client";
 import { BadRequestError, NotFoundError, ValidationError, DatabaseError } from "../errors/errors";
 import { handleError } from "../errors/handleError";
 import prisma from "../prisma";
 import { Job } from "./jobsModels";
+import { validateJob } from "./jobsService"
 import { List } from "./listsModels";
 
 export async function getListsByUser(userid: number): Promise<List[]>{
@@ -45,9 +45,8 @@ export async function validateList(list:List): Promise<boolean>{
         let nameValid = typeof name === 'string' && name.trim().length > 0;
         //each job must have a non-empty description and status, and a valid id
         //not needed for new jobs, but useful for updates, so we will allow it to be 0 or a valid number, but not undefined or NaN
-        let jobsValid = Array.isArray(jobs) && jobs.every(job => {
-            return typeof job.job_description === 'string' && job.job_description.trim().length > 0 &&
-                typeof job.status === 'string' && job.status.trim().length > 0 && !isNaN(job.id) && (job.id === 0 || job.id);
+        let jobsValid = Array.isArray(jobs) && jobs.every( job => {
+            return validateJob(job);
         });
         if(idValid && nameValid && jobsValid){
             return true;
