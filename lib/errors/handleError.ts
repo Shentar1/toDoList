@@ -22,6 +22,12 @@ export function handleError(error: unknown): NextResponse {
             { status: 422 }
         );
      }
+     if(error instanceof Error){
+        return NextResponse.json(
+            { error: error.message },
+            { status: 500 }
+        );
+    }
     // default
     return NextResponse.json(
         { error: "An unexpected error occurred :(" },

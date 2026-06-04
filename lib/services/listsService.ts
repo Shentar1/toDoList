@@ -3,6 +3,24 @@ import prisma from "../prisma";
 import { Job } from "./jobsModels";
 import { validateJob } from "./jobsService"
 import { List } from "./listsModels";
+import { NextRequest } from "next/server";
+
+/**
+ * 
+ * @param request NextRequest object containing a list id
+ * @returns an integer representing the list id
+ */
+export async function parseListId(request:NextRequest):Promise<number>{
+    const searchParams = request.nextUrl.searchParams;
+    const listIdParam = searchParams.get('listId') ?? '';
+    const listId: number = parseInt(listIdParam);
+
+    if(listId && !isNaN(listId)){
+        return listId;
+    }else{
+        throw new BadRequestError("List Id is Invalid");
+    }
+}
 /**
  * 
  * @param userid 
@@ -63,7 +81,7 @@ export async function validateList(list:List): Promise<boolean>{
         if(idValid && nameValid && jobsValid){
             return true;
         }else{
-            return false;
+            throw new ValidationError("Failed to validate list data");
         }
     }catch{
         //if any unexpected error occurs during validation, we will consider the data invalid
@@ -80,7 +98,6 @@ export async function validateList(list:List): Promise<boolean>{
 * @throws if the list is invalid 
 */
 export async function createList(list: List, userId: number):Promise<boolean>{
-        
     try{
         await prisma.lists.create({
             data: {
@@ -110,7 +127,7 @@ export async function createList(list: List, userId: number):Promise<boolean>{
 export async function updateList(list:List, userId: number):Promise<boolean>{
     //TODO: add validation that the list id to be updated belongs to the current user
     try{
-        prisma.lists.update({
+        await prisma.lists.update({
             data:{
                 list_name: list.list_name,
                 user_id:userId,
@@ -126,7 +143,7 @@ export async function updateList(list:List, userId: number):Promise<boolean>{
         })
         return true;
     }catch{
-        throw new DatabaseError("Database Error: Failed to create list");
+        throw new DatabaseError("Database Error: Failed to update list");
     }
 }
 /** 
@@ -139,13 +156,13 @@ export async function updateList(list:List, userId: number):Promise<boolean>{
 export async function deleteList(listId:number):Promise<boolean>{
     //TODO: add validation that the list id to be deleted belongs to the current user
     try{
-        prisma.lists.delete({
+        await prisma.lists.delete({
             where:{
                 id:listId,
             }
         })
         return true;
     }catch{
-        throw new DatabaseError("Database Error: Failed to create list");
+        throw new DatabaseError("Database Error: Failed to delete list");
     }
 }

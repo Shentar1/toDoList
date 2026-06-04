@@ -1,11 +1,12 @@
 import { BadRequestError } from '@/lib/errors/errors';
 import { handleError } from '@/lib/errors/handleError';
-import { getListsByUser, validateList, createList, updateList } from '@/lib/services/listsService';
+import { getListsByUser, validateList, createList, updateList, deleteList } from '@/lib/services/listsService';
 import { NextRequest, NextResponse } from 'next/server';
-import { parseUserId } from '@/lib/services/usersSerivce';
+import { parseUserId } from '@/lib/services/usersService';
+import { parseListId } from '@/lib/services/listsService';
 
 // Get all lists - GET api/lists?userid=<userid>
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest):Promise<NextResponse> {
     try {
         const userId = await parseUserId(request)
 
@@ -18,53 +19,61 @@ export async function GET(request: NextRequest) {
     }
 }
 //Create a new list - POST api/lists (w/ JSON payload)
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest){
     try {
         const userId = await parseUserId(request)
         //take the POST body
         const upload = await request.json();
         //require an upload body
         if(!upload||typeof upload !== 'object'){
-            throw new BadRequestError("A list is required")
+            return handleError(new BadRequestError("A list is required"))
         }
         //validate the list data and throw an error if the data is invalid
         if(await validateList(upload)){
             //create the list here
-            createList(upload, userId);
+            await createList(upload, userId);
+            return NextResponse.json(upload,{
+                status:201,
+                statusText: "List created successfully"
+            });
         }else{
-            throw new BadRequestError("Malformed or Invalid Data");
+            return handleError(new Error())
         }
     }
     catch(error){
-        handleError(error);
+        return handleError(error);
     }
 }
 //update list - PUT api/lists/<listId> (w/ JSON payload)
-export async function PUT(request: NextRequest) {
+export async function PUT(request: NextRequest){
     try {
         const userId = await parseUserId(request)
         //take the POST body
         const upload = await request.json();
         //require an upload body
         if(!upload||typeof upload !== 'object'){
-            throw new BadRequestError("A list is required")
+            return handleError(new BadRequestError("A list is required"))
         }
         //validate the list data and throw an error if the data is invalid
         if(await validateList(upload)){
             //create the list here
-            updateList(upload, userId);
+            await updateList(upload, userId);
+            return NextResponse.json({status:202, statusText:"List Updated Successfully"})
         }else{
-            throw new BadRequestError("Malformed or Invalid Data");
+            return handleError(new Error("An unknown issue occured"))
         }
     }
     catch(error){
-        handleError(error);
+        return handleError(error);
     }
 }
 //delete list - DELETE api/lists/<listId>
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest){
     try {
-        
+        const listId = await parseListId(request);
+
+        await deleteList(listId);
+        return NextResponse.json({status:203, statusText:"List Deleted Successfully"})
     }
     catch(error){
         return handleError(error);
