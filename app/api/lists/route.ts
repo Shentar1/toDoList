@@ -1,6 +1,6 @@
 import { BadRequestError } from '@/lib/errors/errors';
 import { handleError } from '@/lib/errors/handleError';
-import { getListsByUser, validateList, createList, updateList, deleteList } from '@/lib/services/listsService';
+import { getListsByUser, validateList, upsertList, deleteList } from '@/lib/services/listsService';
 import { NextRequest, NextResponse } from 'next/server';
 import { parseUserId } from '@/lib/services/usersService';
 import { parseListId } from '@/lib/services/listsService';
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest){
         //validate the list data and throw an error if the data is invalid
         if(await validateList(upload)){
             //create the list here
-            await createList(upload, userId);
+            await upsertList(upload);
             return NextResponse.json(upload,{
                 status:201,
                 statusText: "List created successfully"
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest){
         //validate the list data and throw an error if the data is invalid
         if(await validateList(upload)){
             //create the list here
-            await updateList(upload, userId);
+            await upsertList(upload);
             return NextResponse.json({status:202, statusText:"List Updated Successfully"})
         }else{
             return handleError(new Error("An unknown issue occured"))

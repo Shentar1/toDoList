@@ -5,6 +5,7 @@ import { validateJob } from "./jobsService"
 import { List } from "./listsModels";
 import { NextRequest } from "next/server";
 import { parseUserId } from "./usersService";
+import { promises } from "dns";
 
 /**
  * 
@@ -125,6 +126,28 @@ export async function updateList(list:List):Promise<List>{
         return newList;
     }catch(error){
         throw error;
+    }
+}
+export async function upsertList(list:List):Promise<List>{
+    try{
+        const newList = await prisma.lists.upsert({
+            where:{
+                id:list.id,
+            },
+            update:{
+                list_name:list.list_name,
+                user_id:list.user_id,
+                time_created:new Date(Date.now()),
+            },
+            create:{
+                list_name:list.list_name,
+                user_id:list.user_id,
+                time_created:new Date(Date.now()),
+            }
+        })
+        return newList;
+    }catch(error){
+        throw error
     }
 }
 /** 
