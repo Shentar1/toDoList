@@ -1,9 +1,10 @@
 import { List } from "./listsModels"
 
-export type Users = {
-    user_id:number,
+export type User = {
+    id:number,
     username:string,
     password:string,
-    timeCreated:Date,
-    role:"Admin"|"User"|"Unverified"
+    time_created:Date,
+    role:string,
+    lists?:List[]
 }

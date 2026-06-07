@@ -4,6 +4,7 @@ import { Job } from "./jobsModels";
 import { validateJob } from "./jobsService"
 import { List } from "./listsModels";
 import { NextRequest } from "next/server";
+import { parseUserId } from "./usersService";
 
 /**
  * 
@@ -27,35 +28,36 @@ export async function parseListId(request:NextRequest):Promise<number>{
  * @returns Promise that resolves to an array of lists associated to a user id
  * @throws BadRequestError if there are issues with the user id
  */
-export async function getListsByUser(userid: number): Promise<List[]>{
-    if(userid !=0 && !userid || isNaN(userid)){
-        throw new BadRequestError('User id is required');
-    }
+export async function getListsByUser(userId: number): Promise<List[]>{
     try {
         const lists = await prisma.lists.findMany({
             where: {
-                user_id: userid
+                user_id: userId
             },
             include: {
                 jobs: true
             }
         });
-        if(lists.length === 0){
+        if(!lists){
+            throw new BadRequestError();
+        }else if(lists.length === 0){
             return [];
+        }else{
+            return lists.map(list => ({
+                id: list.id,
+                time_created:list.time_created,
+                list_name: list.list_name,
+                user_id: list.user_id,
+                jobs: list.jobs.map(j => ({
+                    id: j.id,
+                    job_description: j.job_description,
+                    status: j.status,
+                    list_id: j.list_id
+                } as Job)),
+            }));
         }
-        return lists.map(list => ({
-            id: list.id,
-            list_name: list.list_name,
-            user_id: list.user_id,
-            jobs: list.jobs.map(j => ({
-                id: j.id,
-                job_description: j.job_description,
-                status: j.status,
-                list_id: j.list_id
-            } as Job)),
-        }));
     } catch (error) {
-        throw error;
+        throw error
     }
 }
 /**
@@ -67,26 +69,15 @@ export async function getListsByUser(userid: number): Promise<List[]>{
 export async function validateList(list:List): Promise<boolean>{
     try{
         let name = list.list_name;
-        let jobs = list.jobs;
         let id = list.id;
         //id is not needed for creation, but useful for updates, so we will allow it to be 0 or a valid number, but not undefined or NaN
-        let idValid = !isNaN(id) && (id === 0 || id);
+        let idValid = !isNaN(id)
         //name must be a string with a non-whitespace character
         let nameValid = typeof name === 'string' && name.trim().length > 0;
-        //each job must have a non-empty description and status, and a valid id
-        //not needed for new jobs, but useful for updates, so we will allow it to be 0 or a valid number, but not undefined or NaN
-        let jobsValid = Array.isArray(jobs) && jobs.every( job => {
-            return validateJob(job);
-        });
-        if(idValid && nameValid && jobsValid){
-            return true;
-        }else{
-            throw new ValidationError("Failed to validate list data");
-        }
-    }catch{
-        //if any unexpected error occurs during validation, we will consider the data invalid
-        //this error is specifically for catching errors in validation logic not due to invaid data
-        throw new ValidationError("Failed to validate list data");
+        
+        return idValid && nameValid;
+    }catch(error){
+        throw error
     }
 }
 /** 
@@ -97,23 +88,18 @@ export async function validateList(list:List): Promise<boolean>{
 * @returns a promise that resolves to true if the operation is successful
 * @throws if the list is invalid 
 */
-export async function createList(list: List, userId: number):Promise<boolean>{
+export async function createList(list: List):Promise<List>{
     try{
-        await prisma.lists.create({
+        const newList = await prisma.lists.create({
             data: {
                 list_name: list.list_name,
-                user_id: userId,
+                user_id: list.user_id,
                 time_created:new Date(Date.now()).toUTCString(),
-                jobs: {
-                    createMany:{
-                        data: list.jobs
-                    }
-                }
             }
         });
-        return true;
-    }catch{
-        throw new DatabaseError("Database Error: Failed to create list");
+        return newList;
+    }catch(error){
+        throw error;
     }
 }
 /** 
@@ -124,26 +110,21 @@ export async function createList(list: List, userId: number):Promise<boolean>{
 * @returns a promise that resolves to true if the operation is successful
 * @throws if the list is invalid 
 */
-export async function updateList(list:List, userId: number):Promise<boolean>{
+export async function updateList(list:List):Promise<List>{
     //TODO: add validation that the list id to be updated belongs to the current user
     try{
-        await prisma.lists.update({
+        const newList = await prisma.lists.update({
             data:{
                 list_name: list.list_name,
-                user_id:userId,
-                jobs:{
-                    createMany:{
-                        data: list.jobs
-                    }
-                }
+                user_id:list.user_id,
             },
             where:{
                 id:list.id
             }
         })
-        return true;
-    }catch{
-        throw new DatabaseError("Database Error: Failed to update list");
+        return newList;
+    }catch(error){
+        throw error;
     }
 }
 /** 
@@ -162,7 +143,7 @@ export async function deleteList(listId:number):Promise<boolean>{
             }
         })
         return true;
-    }catch{
-        throw new DatabaseError("Database Error: Failed to delete list");
+    }catch(error){
+        throw error;
     }
 }

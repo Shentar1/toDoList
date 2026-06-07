@@ -27,26 +27,9 @@ jest.mock('../lib/prisma',() => ({
 describe('validateListItem',()=>{
     it('should return true for valid list list_name and id',async ()=>{
         const list = {
-            id: 0,
+            id: 1,
             user_id:1,
             list_name: 'My List',
-            jobs: []
-        }
-        expect(await listsService.validateList(list)).toBe(true);
-    });
-    it('should return true for valid list with jobs',async ()=>{
-        const list = {
-            id: 0,
-            list_name: 'My List',
-            user_id:1,
-            jobs: [
-                {
-                    id: 0,
-                    job_description: 'My Job',
-                    status: 'pending',
-                    list_id:0
-                }
-            ]
         }
         expect(await listsService.validateList(list)).toBe(true);
     });
@@ -57,7 +40,7 @@ describe('validateListItem',()=>{
             user_id:1,
             jobs: []
         }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
+        await expect(listsService.validateList(list)).resolves.toBe(false);
     });
     it('should throw an error for non-numeric list id',async ()=>{
         const list = {
@@ -66,7 +49,7 @@ describe('validateListItem',()=>{
             user_id:1,
             jobs: []
         }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
+        await expect(listsService.validateList(list)).resolves.toBe(false);;
     });
     it('should throw an error for empty list list_name',async ()=>{
         const list = {
@@ -75,7 +58,7 @@ describe('validateListItem',()=>{
             user_id:1,
             jobs: []
         }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
+        await expect(listsService.validateList(list)).resolves.toBe(false);
     });
     it('should throw an error for undefined list list_name',async ()=>{
         const list = {
@@ -84,7 +67,7 @@ describe('validateListItem',()=>{
             user_id:1,
             jobs: []
         }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
+        await expect(listsService.validateList(list)).resolves.toBe(false);
     });
     it('should throw an error for non-string list list_name', async ()=>{
         const list = {
@@ -93,136 +76,7 @@ describe('validateListItem',()=>{
             user_id:1,
             jobs: []
         }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
-    });
-    
-    it('should throw an error for job with empty description',async ()=>{
-        const list = {
-            id: 0,
-            list_name: 'My List',
-            user_id:1,
-            jobs: [
-                {
-                    id: 0,
-                    job_description: '   ',
-                    status: 'pending',
-                    list_id:0,
-                }
-            ]
-        }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
-    });
-    it('should throw an error for job with undefined description',async ()=>{
-        const list = {
-            id: 0,
-            list_name: 'My List',
-            user_id:1,
-            jobs: [
-                {
-                    id: 0,
-                    job_description: undefined as unknown as string,
-                    status: 'pending',
-                    list_id:0
-                }
-            ]
-        }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
-    });
-    it('should throw an error for job with non-string description',async ()=>{
-        const list = {
-            id: 0,
-            list_name: 'My List',
-            user_id:1,
-            jobs: [
-                {
-                    id: 0,
-                    job_description: 123 as unknown as string,
-                    status: 'pending',
-                    list_id:0
-                }
-            ]
-        }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
-    });
-    it('should throw an error for job with empty status',async ()=>{
-        const list = {
-            id: 0,
-            list_name: 'My List',
-            user_id:1,
-            jobs: [
-                {
-                    id: 0,
-                    job_description: 'My Job',
-                    status: '   ',
-                    list_id:0
-                }
-            ]
-        }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
-    });
-    it('should throw an error for job with undefined status',async ()=>{
-        const list = {
-            id: 0,
-            list_name: 'My List',
-            user_id:1,
-            jobs: [
-                {
-                    id: 0,
-                    job_description: 'My Job',
-                    status: undefined as unknown as string,
-                    list_id:0
-                }
-            ]
-        }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
-    });
-    it('should throw an error for job with non-string status',async ()=>{
-        const list = {
-            id: 0,
-            list_name: 'My List',
-            user_id:1,
-            jobs: [
-                {
-                    id: 0,
-                    job_description: 'My Job',
-                    status: 123 as unknown as string,
-                    list_id:0
-                }
-            ]
-        }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
-    });
-    it('should throw an error for job with invalid id',async ()=>{
-        const list = {
-            id: 0,
-            list_name: 'My List',
-            user_id:1,
-            jobs: [
-                {
-                    id: 'abc' as unknown as number,
-                    job_description: 'My Job',
-                    status: 'pending',
-                    list_id:0
-                }
-            ]
-        }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
-    });
-    it('should throw an error for job with undefined id',async ()=>{
-        const list = {
-            id: 0,
-            list_name: 'My List',
-            user_id:1,
-            jobs: [
-                {
-                    id: undefined as unknown as number,
-                    job_description: 'My Job',
-                    status: 'pending',
-                    list_id:0
-                }
-            ]
-        }
-        await expect(listsService.validateList(list)).rejects.toThrow(ValidationError);
+        await expect(listsService.validateList(list)).resolves.toBe(false);
     });
 });
 
@@ -260,48 +114,84 @@ describe('getListsByUser',()=>{
         expect(lists).toEqual([]);
     });
     it('should throw an error for an invalid user id',async ()=>{
-        await expect(listsService.getListsByUser(undefined as unknown as number)).rejects.toThrow('User id is required');
+        await expect(listsService.getListsByUser(undefined as unknown as number)).rejects.toThrow('Bad Request');
     });
     it('should throw an error for a non-numeric user id',async ()=>{
-        await expect(listsService.getListsByUser('abc' as unknown as number)).rejects.toThrow('User id is required');
+        await expect(listsService.getListsByUser('abc' as unknown as number)).rejects.toThrow('Bad Request');
     });
 });
 
 describe('createList',()=>{
-    it('should return true if the data is valid and prisma creates the row in the database',async ()=>{
-        const result = await listsService.createList({list_name: 'My List', id: 1, jobs:[{id:1, job_description:'todo'}]} as List, 1 );
-        expect(result).toBe(true);
+    it('should return the list item if the data is valid and prisma creates the row in the database',async ()=>{
+        (prisma.lists.create as jest.Mock).mockImplementationOnce(()=>{
+            return {id:1,list_name:'My List',user_id:1} as List
+        })
+        const result = await listsService.createList({list_name: 'My List', user_id: 1,} as List );
+        expect(result.id).toBe(1);
+        expect(result.list_name).toBe('My List');
+        expect(result.user_id).toBe(1)
     });
     it('should throw a database error if prisma returns an error',async ()=>{
         (prisma.lists.create as jest.Mock).mockImplementationOnce(()=>{
             throw new Error();
         })
-        await expect(listsService.createList({list_name: 'My List', id: 1, jobs:[{id:1, job_description:'todo'}]} as List, 1 )).rejects.toThrow(DatabaseError);
+        await expect(listsService.createList({list_name: 'My List', id: 1} as List )).rejects.toThrow(Error);
     });
 })
 
 describe('updateList',()=>{
-    it('should return true if the data is valid and prisma updates the row in the database',async ()=>{
-        const result = await listsService.updateList({list_name: 'My List', id: 1, jobs:[{id:1, job_description:'todo'}]} as List, 1 );
-        expect(result).toBe(true);
+    it('should return the list item if the data is valid and prisma updates the row in the database',async ()=>{
+        (prisma.lists.update as jest.Mock).mockImplementationOnce(()=>{
+            return {id:1, user_id:1, list_name:'My List'} as List
+        })
+
+        const result = await listsService.updateList({id:1, list_name: 'My List', user_id: 1} as List );
+        expect(result.id).toBe(1);
+        expect(result.list_name).toBe('My List');
+        expect(result.user_id).toBe(1)
     });
     it('should throw a database error if prisma returns an error',async ()=>{
         (prisma.lists.update as jest.Mock).mockImplementationOnce(()=>{
             throw new Error();
         })
-        await expect(listsService.updateList({list_name: 'My List', id: 1, jobs:[{id:1, job_description:'todo'}]} as List, 1 )).rejects.toThrow(DatabaseError);
+        await expect(listsService.updateList({list_name: 'My List', id: 1} as List )).rejects.toThrow(Error);
     });
 })
 
 describe('deleteList',()=>{
     it('should return true if prisma deletes the row in the database',async ()=>{
+        let lists = [{
+            id:1,
+            user_id:1,
+            list_name:"My List"
+        }]as List[]
+        (prisma.lists.delete as jest.Mock).mockImplementationOnce(()=>{
+            let deleteIndex = lists.findIndex(l =>{
+                l.id === 1;
+            })
+            lists.splice(deleteIndex);
+        })
         const result = await listsService.deleteList(1);
         expect(result).toBe(true);
     });
     it('should throw a database error if prisma returns an error',async ()=>{
+        let lists = [{
+            id:1,
+            user_id:1,
+            list_name:"My List"
+        }]as List[]
         (prisma.lists.delete as jest.Mock).mockImplementationOnce(()=>{
-            throw new Error();
+            (prisma.lists.delete as jest.Mock).mockImplementationOnce(()=>{
+                let deleteIndex = lists.findIndex(l =>{
+                    l.id === 1;
+                })
+                if(deleteIndex === -1){
+                    throw new Error();
+                }
+                lists.splice(deleteIndex);
+            })
         })
-        await expect(listsService.deleteList(1)).rejects.toThrow(DatabaseError);
+        await listsService.deleteList(5);
+        await expect(listsService.deleteList(1)).rejects.toThrow(Error);
     });
 })

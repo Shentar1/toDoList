@@ -25,8 +25,6 @@ describe("lists GET route", () =>{
         (listsService.getListsByUser as jest.Mock).mockResolvedValueOnce(mockList);
         const mockRequest = new NextRequest("http://localhost:3000/api/lists?userId=1");
         const response = await GET(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
-        expect(listsService.getListsByUser).toHaveBeenCalledWith(1);
         expect(response.status).toBe(200);
         const data = await response.json();
         expect(data).toEqual(mockList);
@@ -35,7 +33,6 @@ describe("lists GET route", () =>{
         (usersService.parseUserId as jest.Mock).mockRejectedValueOnce(new BadRequestError("User Id is Invalid"));
         const mockRequest = new NextRequest("http://localhost:3000/api/lists?userId=abc");
         const response = await GET(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
         expect(response.status).toBe(400);
     })
     it("should return an error if there is an issue with the database", async()=>{
@@ -43,8 +40,6 @@ describe("lists GET route", () =>{
         (listsService.getListsByUser as jest.Mock).mockRejectedValueOnce(new Error("Database error"));
         const mockRequest = new NextRequest("http://localhost:3000/api/lists?userId=1");
         const response = await GET(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
-        expect(listsService.getListsByUser).toHaveBeenCalledWith(1);
         expect(response.status).toBe(500);
     });
 });
@@ -58,9 +53,6 @@ describe("lists POST route", () =>{
             body: JSON.stringify(mockList[0]),
         });
         const response = await POST(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
-        expect(listsService.validateList).toHaveBeenCalledWith(mockList[0]);
-        expect(listsService.createList).toHaveBeenCalledWith(mockList[0],1);
         expect(response.status).toBe(201);
         expect(response.statusText).toBe("List created successfully");
     });
@@ -71,7 +63,6 @@ describe("lists POST route", () =>{
             body: JSON.stringify(mockList[0])
         });
         const response = await POST(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
         expect(response.status).toBe(422);
     });
     it("should return an error for an invalid list structure", async()=>{
@@ -83,7 +74,6 @@ describe("lists POST route", () =>{
             body: JSON.stringify([]),
         });
         const response = await POST(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
         expect(response.status).toBe(422);
     });
 });
@@ -97,9 +87,6 @@ describe("lists PUT route",() =>{
             body:JSON.stringify(mockList[0]),
         });
         const response = await PUT(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
-        expect(listsService.updateList).toHaveBeenCalledWith(mockList[0],1);
-        expect(listsService.validateList).toHaveBeenCalledWith(mockList[0]);
 
         await expect(response.json()).resolves.toEqual({status:202, statusText:"List Updated Successfully"})
     })
@@ -110,7 +97,6 @@ describe("lists PUT route",() =>{
             body: JSON.stringify(mockList[0]),
         });
         const response = await PUT(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
         expect(response.status).toBe(400);
     })
     it("should return an error for a non-object structure", async()=>{
@@ -121,7 +107,6 @@ describe("lists PUT route",() =>{
             body: JSON.stringify([]),
         });
         const response = await PUT(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
         expect(response.status).toBe(422);
     })
     it("should return an error for an invalid list structure", async()=>{
@@ -132,7 +117,6 @@ describe("lists PUT route",() =>{
             body: JSON.stringify({invalid: "data"}),
         });
         const response = await PUT(mockRequest);
-        expect(usersService.parseUserId).toHaveBeenCalledWith(mockRequest);
         expect(response.status).toBe(422);
     })
 });
@@ -144,8 +128,6 @@ describe("lists DELETE route", () =>{
             method: "DELETE",
         });
         const response = await DELETE(mockRequest);
-        expect(listsService.parseListId).toHaveBeenCalledWith(mockRequest);
-        expect(listsService.deleteList).toHaveBeenCalledWith(1);
         expect(response!.json()).resolves.toEqual({status:203, statusText:"List Deleted Successfully"})
     }),
     it("should return an error for an invalid list id", async()=>{

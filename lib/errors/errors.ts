@@ -22,3 +22,15 @@ export class DatabaseError extends Error {
         this.name = "DatabaseError";
     }
 }
+export class UniqueConstraintError extends Error{
+  constructor(message = "Unique Constraint violated"){
+    super(message);
+    this.name = "UniqueConstraintError";
+  }
+}
+export class PrismaError extends Error{
+  constructor(message = "Database Error"){
+    super(message);
+    this.name = "PrismaError";
+  }
+}

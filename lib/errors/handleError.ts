@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { BadRequestError, NotFoundError, ValidationError } from "./errors";
+import { DatabaseError } from "pg";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
 export function handleError(error: unknown): NextResponse {
     if (error instanceof NotFoundError) {
@@ -22,11 +24,22 @@ export function handleError(error: unknown): NextResponse {
             { status: 422 }
         );
      }
-     if(error instanceof Error){
+     if(error instanceof DatabaseError){
         return NextResponse.json(
             { error: error.message },
             { status: 500 }
         );
+    }
+    if (error instanceof PrismaClientKnownRequestError){
+        const prismaStatusMap: Record<string,number>={
+            "P2002":409,
+            "P2025":404,
+        }
+        const status = prismaStatusMap[error.code] || 400
+        return NextResponse.json(
+            {error:error.message},
+            {status:status}
+        )
     }
     // default
     return NextResponse.json(
