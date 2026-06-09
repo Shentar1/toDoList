@@ -56,7 +56,7 @@ export async function getUserByUsernameAndPassword(username:string, password:str
         throw error;
     }
 }
-export async function createOrUpdate(user:User):Promise<User>{
+export async function createOrUpdateUser(user:User):Promise<User>{
     try {
         const newUser = prisma.users.upsert({
             where:{
@@ -92,4 +92,11 @@ export async function validateUser(user:User):Promise<boolean>{
     const validRole = role.trim().length > 0 && typeof role === 'string';
 
     return validPassword && validUsername && validTime && validRole;
+}
+export async function deleteUserById(id:number){
+    prisma.users.delete({
+        where:{
+            id:id
+        },
+    })
 }

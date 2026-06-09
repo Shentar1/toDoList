@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getUserByUsernameAndPassword} from "@/lib/services/usersService";
-import prisma from "@/lib/prisma";
-import { NotFoundError } from "@/lib/errors/errors";
+
 export default async function login(request:NextApiRequest, response:NextApiResponse){
     try{
         const {username, password} = request.body;

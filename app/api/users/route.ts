@@ -1,7 +1,7 @@
 import { User } from '@/lib/services/usersModels';
 import {NextRequest, NextResponse} from 'next/server';
 import { handleError } from '@/lib/errors/handleError';
-import { /*parseUserId, getUserById,*/ validateUser, createUser } from '@/lib/services/usersService';
+import { validateUser, createOrUpdateUser, getUserByUsernameAndPassword, deleteUserById } from '@/lib/services/usersService';
 import { BadRequestError } from '@/lib/errors/errors';
 
 /*export async function GET(request:NextRequest){
@@ -20,10 +20,10 @@ export async function POST(request:NextRequest){
             throw new BadRequestError("A User is required")
         }
         if(await validateUser(upload)){
-            createUser(upload)
+            const user = createOrUpdateUser(upload)
 
             return NextResponse.json(
-                {upload},
+                {user},
                 {status:201, statusText:"User created successfully"}
             )
         }
@@ -34,7 +34,16 @@ export async function POST(request:NextRequest){
 
 export async function PUT(request:NextRequest){
     try{
-        
+        const upload = await request.json();
+        if(!upload || typeof upload !== 'object'){
+            throw new BadRequestError("A User is required")
+        }if(await validateUser(upload)){
+            const user = createOrUpdateUser(upload)
+            return NextResponse.json(
+                {user},
+                {status:202, statusText:"User updated successfully"}
+            )
+        }
     }catch(error){
         handleError(error);
     }
@@ -42,7 +51,12 @@ export async function PUT(request:NextRequest){
 
 export async function DELETE(request:NextRequest){
     try{
-        
+        const user = await request.json()
+        const userId = await (await getUserByUsernameAndPassword(user.username, user.password)).id;
+        deleteUserById(userId);
+        return NextResponse.json(
+            {status:203 ,statusText:"user deleted successfully"}
+        )
     }catch(error){
         handleError(error);
     }

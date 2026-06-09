@@ -14,7 +14,7 @@ model jobs {
   list_id         Int
   status          String?   @db.VarChar
   time_created    DateTime @db.Timestamp(6)
-  lists           lists     @relation(fields: [list_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "job_list")
+  lists           lists     @relation(fields: [list_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "job_list")
 }
 
 /// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
@@ -24,7 +24,7 @@ model lists {
   user_id      Int
   time_created DateTime @db.Timestamp(6)
   jobs         jobs[]
-  users        users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_lists")
+  users        users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "user_lists")
 }
 
 model users {
