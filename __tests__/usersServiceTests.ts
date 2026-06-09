@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
-import * as usersService from '../lib/services/usersService';
-import prisma from '../lib/prisma';
-import { NotFoundError } from '../lib/errors/errors';
-import { User } from '../lib/services/usersModels';
+import "@testing-library/jest-dom";
+import * as usersService from "../lib/services/usersService";
+import prisma from "../lib/prisma";
+import { NotFoundError } from "../lib/errors/errors";
+import { User } from "../lib/services/usersModels";
 
-jest.mock('../lib/prisma', () => ({
+jest.mock("../lib/prisma", () => ({
   __esModule: true,
   default: {
     users: {
@@ -17,42 +17,49 @@ jest.mock('../lib/prisma', () => ({
 
 const mockedPrisma = prisma as any;
 const expectedUser = {
-    id: 1,
-    username: 'test',
-    password: 'secret',
-    time_created: new Date(),
-    role: 'user',
-lists: [],
+  id: 1,
+  uuid: "d23cb603-c4ec-4fdf-9730-cd7d1973950b",
+  username: "test",
+  password: "secret",
+  time_created: new Date(),
+  role: "user",
+  lists: [],
 } as User;
 
-describe('usersService', () => {
+describe("usersService", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('parseUserId', () => {
-    test('returns number when userId query parameter is valid', async () => {
+  describe("parseUseruuid", () => {
+    test("returns uuid when userId query parameter is valid", async () => {
       const request = {
         nextUrl: {
-          searchParams: new URLSearchParams({ userId: '123' }),
+          searchParams: new URLSearchParams({
+            userId: "d23cb603-c4ec-4fdf-9730-cd7d1973950b",
+          }),
         },
       } as unknown as any;
 
-      await expect(usersService.parseUserId(request)).resolves.toBe(123);
+      await expect(usersService.parseUserId(request)).resolves.toBe(
+        "d23cb603-c4ec-4fdf-9730-cd7d1973950b",
+      );
     });
 
-    test('throws BadRequestError when userId query parameter is invalid', async () => {
+    test("throws BadRequestError when userId query parameter is invalid", async () => {
       const request = {
         nextUrl: {
-          searchParams: new URLSearchParams({ userId: 'abc' }),
+          searchParams: new URLSearchParams({ userId: "123" }),
         },
       } as unknown as any;
 
-      await expect(usersService.parseUserId(request)).rejects.toThrow('User Id is Invalid');
+      await expect(usersService.parseUserId(request)).rejects.toThrow(
+        "User Id is Invalid",
+      );
     });
   });
 
-/*  describe('getUserById', () => {
+  /*  describe('getUserById', () => {
     test('returns user when found', async () => {
 
       mockedPrisma.users.findUniqueOrThrow.mockResolvedValue(expectedUser);
@@ -61,66 +68,76 @@ describe('usersService', () => {
     });
   });*/
 
-  describe('getUserByUsernameAndPassword', () => {
-    test('returns user when username and password match', async () => {
-      
+  describe("getUserByUsernameAndPassword", () => {
+    test("returns user when username and password match", async () => {
       mockedPrisma.users.findUniqueOrThrow.mockResolvedValue(expectedUser);
 
-      await expect(usersService.getUserByUsernameAndPassword('test', 'secret')).resolves.toBe(expectedUser);
+      await expect(
+        usersService.getUserByUsernameAndPassword("test", "secret"),
+      ).resolves.toBe(expectedUser);
     });
 
-    test('throws NotFoundError when password does not match', async () => {
+    test("throws NotFoundError when password does not match", async () => {
+      mockedPrisma.users.findUniqueOrThrow.mockRejectedValue(
+        new NotFoundError(),
+      );
 
-      mockedPrisma.users.findUniqueOrThrow.mockRejectedValue(new NotFoundError());
-
-      await expect(usersService.getUserByUsernameAndPassword('test', 'wrong')).rejects.toThrow(NotFoundError);
+      await expect(
+        usersService.getUserByUsernameAndPassword("test", "wrong"),
+      ).rejects.toThrow(NotFoundError);
     });
 
-    test('throws NotFoundError when user is not found', async () => {
-      mockedPrisma.users.findUniqueOrThrow.mockRejectedValue(new NotFoundError());
+    test("throws NotFoundError when user is not found", async () => {
+      mockedPrisma.users.findUniqueOrThrow.mockRejectedValue(
+        new NotFoundError(),
+      );
 
-      await expect(usersService.getUserByUsernameAndPassword('missing', 'secret')).rejects.toThrow(NotFoundError);
+      await expect(
+        usersService.getUserByUsernameAndPassword("missing", "secret"),
+      ).rejects.toThrow(NotFoundError);
     });
   });
 
-  describe('createUser', () => {
-    test('creates and returns new user', async () => {
+  describe("create  or update user", () => {
+    test("creates/updates as user and returns new user or properties", async () => {
       const userInput = {
-        username: 'new',
-        password: 'verysecure',
+        username: "new",
+        password: "verysecure",
       } as User;
       const createdUser = {
         ...userInput,
         id: 2,
         time_created: new Date(),
-        role: 'user',
+        role: "user",
         lists: [],
       } as User;
 
       mockedPrisma.users.upsert.mockResolvedValue(createdUser);
 
-      await expect(usersService.createOrUpdateUser(userInput)).resolves.toBe(createdUser);
+      await expect(usersService.createOrUpdateUser(userInput)).resolves.toBe(
+        createdUser,
+      );
     });
   });
 
-  describe('validateUser', () => {
-    test('returns true for valid user', async () => {
+  describe("validateUser", () => {
+    test("returns true for valid user", async () => {
       const validUser = {
-        username: 'validUser',
-        password: 'moreThan8',
+        username: "validUser",
+        password: "moreThan8",
         time_created: new Date(),
-        role: 'admin',
+        role: "admin",
       } as User;
 
       await expect(usersService.validateUser(validUser)).resolves.toBe(true);
     });
 
-    test('returns false for invalid user data', async () => {
+    test("returns false for invalid user data", async () => {
       const invalidUser = {
-        username: 'a',
-        password: 'short',
-        time_created: new Date('invalid'),
-        role: '',
+        username: "a",
+        password: "short",
+        time_created: new Date("invalid"),
+        role: "",
       } as User;
 
       await expect(usersService.validateUser(invalidUser)).resolves.toBe(false);

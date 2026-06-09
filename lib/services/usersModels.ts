@@ -1,10 +1,11 @@
-import { List } from "./listsModels"
+import { List } from "./listsModels";
 
 export type User = {
-    id:number,
-    username:string,
-    password:string,
-    time_created:Date,
-    role:string,
-    lists?:List[]
-}
+  id: number;
+  uuid: string;
+  username: string;
+  password: string;
+  time_created?: Date;
+  role: string;
+  lists?: List[];
+};

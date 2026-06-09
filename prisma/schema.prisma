@@ -29,6 +29,7 @@ model lists {
 
 model users {
   id           Int       @id @default(autoincrement())
+  uuid         String    @default(uuid()) @unique @db.Uuid
   username     String    @db.VarChar @unique
   password     String    @db.VarChar
   time_created DateTime @db.Timestamp(6)
