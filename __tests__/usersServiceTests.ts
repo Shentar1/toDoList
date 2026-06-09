@@ -99,7 +99,7 @@ describe('usersService', () => {
 
       mockedPrisma.users.upsert.mockResolvedValue(createdUser);
 
-      await expect(usersService.createOrUpdate(userInput)).resolves.toBe(createdUser);
+      await expect(usersService.createOrUpdateUser(userInput)).resolves.toBe(createdUser);
     });
   });
 
