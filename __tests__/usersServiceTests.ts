@@ -41,7 +41,7 @@ describe("usersService", () => {
         },
       } as unknown as any;
 
-      await expect(usersService.parseUserId(request)).resolves.toBe(
+      await expect(usersService.parseUserUuid(request)).resolves.toBe(
         "d23cb603-c4ec-4fdf-9730-cd7d1973950b",
       );
     });
@@ -53,7 +53,7 @@ describe("usersService", () => {
         },
       } as unknown as any;
 
-      await expect(usersService.parseUserId(request)).rejects.toThrow(
+      await expect(usersService.parseUserUuid(request)).rejects.toThrow(
         "User Id is Invalid",
       );
     });

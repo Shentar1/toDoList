@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         { user },
-        { status: 201, statusText: "User created successfully" },
+        { status: 200, statusText: "User created successfully" },
       );
     }
   } catch (error) {
@@ -44,10 +44,10 @@ export async function PUT(request: NextRequest) {
       throw new BadRequestError("A User is required");
     }
     if (await validateUser(upload)) {
-      const user = createOrUpdateUser(upload);
+      const user = await createOrUpdateUser(upload);
       return NextResponse.json(
         { user },
-        { status: 202, statusText: "User updated successfully" },
+        { status: 200, statusText: "User updated successfully" },
       );
     }
   } catch (error) {

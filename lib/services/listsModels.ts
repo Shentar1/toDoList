@@ -1,8 +1,8 @@
 import { Job } from "./jobsModels";
 
 export type List = {
-    id: number; // 123
-    list_name: string;
-    jobs?: Job[];
-    user_id: number;
-}
+  id: number; // 123
+  list_name: string;
+  jobs?: Job[];
+  user_uuid: string;
+};

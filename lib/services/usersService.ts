@@ -15,7 +15,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { Prisma } from "@/app/generated/prisma/client";
 import { Elsie_Swash_Caps } from "next/font/google";
 
-export async function parseUserId(request: NextRequest): Promise<string> {
+export async function parseUserUuid(request: NextRequest): Promise<string> {
   const searchParams = request.nextUrl.searchParams;
   const userId = searchParams.get("userId") ?? "";
 
