@@ -5,11 +5,8 @@ import {
 } from "../errors/errors";
 import prisma from "../prisma";
 import { Job } from "./jobsModels";
-import { validateJob } from "./jobsService";
 import { List } from "./listsModels";
 import { NextRequest } from "next/server";
-import { parseUserUuid } from "./usersService";
-import { promises } from "dns";
 
 /**
  *

@@ -25,7 +25,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 //Create a new list - POST api/lists (w/ JSON payload)
 export async function POST(request: NextRequest) {
   try {
-    const userId = await parseUserUuid(request);
     //take the POST body
     const upload = await request.json();
     //require an upload body
@@ -50,7 +49,6 @@ export async function POST(request: NextRequest) {
 //update list - PUT api/lists/<listId> (w/ JSON payload)
 export async function PUT(request: NextRequest) {
   try {
-    const userId = await parseUserUuid(request);
     //take the POST body
     const upload = await request.json();
     //require an upload body

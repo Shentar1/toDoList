@@ -3,6 +3,7 @@ import * as usersService from "../lib/services/usersService";
 import prisma from "../lib/prisma";
 import { NotFoundError } from "../lib/errors/errors";
 import { User } from "../lib/services/usersModels";
+import { NextRequest } from "next/server";
 
 jest.mock("../lib/prisma", () => ({
   __esModule: true,
@@ -33,14 +34,10 @@ describe("usersService", () => {
 
   describe("parseUseruuid", () => {
     test("returns uuid when userId query parameter is valid", async () => {
-      const request = {
-        nextUrl: {
-          searchParams: new URLSearchParams({
-            userId: "d23cb603-c4ec-4fdf-9730-cd7d1973950b",
-          }),
-        },
-      } as unknown as any;
-
+      const request = new NextRequest(
+        "localhost:3000/users/userId?userId=d23cb603-c4ec-4fdf-9730-cd7d1973950b",
+      );
+      console.log(request.nextUrl.searchParams);
       await expect(usersService.parseUserUuid(request)).resolves.toBe(
         "d23cb603-c4ec-4fdf-9730-cd7d1973950b",
       );
@@ -58,16 +55,6 @@ describe("usersService", () => {
       );
     });
   });
-
-  /*  describe('getUserById', () => {
-    test('returns user when found', async () => {
-
-      mockedPrisma.users.findUniqueOrThrow.mockResolvedValue(expectedUser);
-
-      await expect(usersService.getUserById(1)).resolves.toBe(expectedUser);
-    });
-  });*/
-
   describe("getUserByUsernameAndPassword", () => {
     test("returns user when username and password match", async () => {
       mockedPrisma.users.findUniqueOrThrow.mockResolvedValue(expectedUser);
