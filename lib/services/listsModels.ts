@@ -4,5 +4,5 @@ export type List = {
   id: number; // 123
   list_name: string;
   jobs?: Job[];
-  user_uuid: string;
+  user_id: number;
 };

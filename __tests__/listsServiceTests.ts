@@ -9,6 +9,9 @@ jest.mock("../lib/prisma", () => ({
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    findUniqueOrThrow: jest.fn().mockImplementation(() => {
+      return { user_id: 1 };
+    }),
   },
   lists: {
     findMany: jest.fn(),
@@ -28,7 +31,7 @@ describe("validateListItem", () => {
   it("should return true for valid list list_name and id", async () => {
     const list = {
       id: 1,
-      user_uuid: "1",
+      user_id: 1,
       list_name: "My List",
     };
     expect(await listsService.validateList(list)).toBe(true);
@@ -37,7 +40,7 @@ describe("validateListItem", () => {
     const list = {
       id: undefined as unknown as number,
       list_name: "My List",
-      user_uuid: "1",
+      user_id: 1,
       jobs: [],
     };
     await expect(listsService.validateList(list)).resolves.toBe(false);
@@ -46,7 +49,7 @@ describe("validateListItem", () => {
     const list = {
       id: "abc" as unknown as number,
       list_name: "My List",
-      user_uuid: "1",
+      user_id: 1,
       jobs: [],
     };
     await expect(listsService.validateList(list)).resolves.toBe(false);
@@ -55,7 +58,7 @@ describe("validateListItem", () => {
     const list = {
       id: 0,
       list_name: "   ",
-      user_uuid: "1",
+      user_id: 1,
       jobs: [],
     };
     await expect(listsService.validateList(list)).resolves.toBe(false);
@@ -64,7 +67,7 @@ describe("validateListItem", () => {
     const list = {
       id: 0,
       list_name: undefined as unknown as string,
-      user_uuid: "1",
+      user_id: 1,
       jobs: [],
     };
     await expect(listsService.validateList(list)).resolves.toBe(false);
@@ -73,7 +76,7 @@ describe("validateListItem", () => {
     const list = {
       id: 0,
       list_name: 123 as unknown as string,
-      user_uuid: "1",
+      user_id: 1,
       jobs: [],
     };
     await expect(listsService.validateList(list)).resolves.toBe(false);
@@ -86,7 +89,7 @@ describe("getListsByUser", () => {
       {
         id: 1,
         list_name: "My List 1",
-        user_uuid: "1",
+        user_id: 1,
         jobs: [
           {
             id: 1,
@@ -99,7 +102,7 @@ describe("getListsByUser", () => {
       {
         id: 2,
         list_name: "My List 2",
-        user_uuid: "1",
+        user_id: 1,
         jobs: [],
       },
     ];
@@ -128,15 +131,15 @@ describe("getListsByUser", () => {
 describe("createList", () => {
   it("should return the list item if the data is valid and prisma creates the row in the database", async () => {
     (prisma.lists.create as jest.Mock).mockImplementationOnce(() => {
-      return { id: 1, list_name: "My List", user_uuid: "1" } as List;
+      return { id: 1, list_name: "My List", user_id: 1 } as List;
     });
     const result = await listsService.createList({
       list_name: "My List",
-      user_uuid: "1",
+      user_id: 1,
     } as List);
     expect(result.id).toBe(1);
     expect(result.list_name).toBe("My List");
-    expect(result.user_uuid).toBe("1");
+    expect(result.user_id).toBe(1);
   });
   it("should throw a database error if prisma returns an error", async () => {
     (prisma.lists.create as jest.Mock).mockImplementationOnce(() => {
@@ -151,17 +154,17 @@ describe("createList", () => {
 describe("updateList", () => {
   it("should return the list item if the data is valid and prisma updates the row in the database", async () => {
     (prisma.lists.update as jest.Mock).mockImplementationOnce(() => {
-      return { id: 1, user_uuid: "1", list_name: "My List" } as List;
+      return { id: 1, user_id: 1, list_name: "My List" } as List;
     });
 
     const result = await listsService.updateList({
       id: 1,
       list_name: "My List",
-      user_uuid: "1",
+      user_id: 1,
     } as List);
     expect(result.id).toBe(1);
     expect(result.list_name).toBe("My List");
-    expect(result.user_uuid).toBe("1");
+    expect(result.user_id).toBe(1);
   });
   it("should throw a database error if prisma returns an error", async () => {
     (prisma.lists.update as jest.Mock).mockImplementationOnce(() => {
@@ -178,7 +181,7 @@ describe("deleteList", () => {
     let lists = [
       {
         id: 1,
-        user_uuid: "1",
+        user_id: 1,
         list_name: "My List",
       },
     ] as List[];
@@ -195,7 +198,7 @@ describe("deleteList", () => {
     let lists = [
       {
         id: 1,
-        user_uuid: "1",
+        user_id: 1,
         list_name: "My List",
       },
     ] as List[];

@@ -1,19 +1,7 @@
-import { NextURL } from "next/dist/server/web/next-url";
-import {
-  BadRequestError,
-  NotFoundError,
-  ValidationError,
-  DatabaseError,
-  PrismaError,
-} from "../errors/errors";
+import { BadRequestError } from "../errors/errors";
 import prisma from "../prisma";
 import { NextRequest } from "next/server";
-import { List } from "./listsModels";
 import { User } from "./usersModels";
-import { Job } from "./jobsModels";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
-import { Prisma } from "@/app/generated/prisma/client";
-import { Elsie_Swash_Caps } from "next/font/google";
 
 export async function parseUserUuid(request: NextRequest): Promise<string> {
   const searchParams = request.nextUrl.searchParams;
@@ -107,13 +95,15 @@ export async function validateUser(user: User): Promise<boolean> {
 
   return validPassword && validUsername && validTime && validRole;
 }
-export async function deleteUserByUuid(uuid: string) {
+export async function deleteUserByUuid(uuid: string): Promise<boolean> {
   try {
+    const userId = (await getUserByUuid(uuid)).id;
     prisma.users.delete({
       where: {
-        uuid: uuid,
+        id: userId,
       },
     });
+    return true;
   } catch (error) {
     throw error;
   }

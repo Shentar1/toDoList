@@ -30,11 +30,19 @@ export async function parseListId(request: NextRequest): Promise<number> {
  * @returns Promise that resolves to an array of lists associated to a user id
  * @throws BadRequestError if there are issues with the user id
  */
-export async function getListsByUser(userId: string): Promise<List[]> {
+export async function getListsByUser(userUuid: string): Promise<List[]> {
   try {
+    const user = await prisma.users.findUniqueOrThrow({
+      where: {
+        uuid: userUuid,
+      },
+      select: {
+        id: true,
+      },
+    });
     const lists = await prisma.lists.findMany({
       where: {
-        user_uuid: userId,
+        user_id: user.id,
       },
       include: {
         jobs: true,
@@ -49,7 +57,7 @@ export async function getListsByUser(userId: string): Promise<List[]> {
         id: list.id,
         time_created: list.time_created,
         list_name: list.list_name,
-        user_uuid: list.user_uuid,
+        user_id: list.user_id,
         jobs: list.jobs.map(
           (j: Job) =>
             ({
@@ -98,7 +106,7 @@ export async function createList(list: List): Promise<List> {
     const newList = await prisma.lists.create({
       data: {
         list_name: list.list_name,
-        user_uuid: list.user_uuid,
+        user_id: list.user_id,
         time_created: new Date(Date.now()).toUTCString(),
       },
     });
@@ -121,7 +129,7 @@ export async function updateList(list: List): Promise<List> {
     const newList = await prisma.lists.update({
       data: {
         list_name: list.list_name,
-        user_uuid: list.user_uuid,
+        user_id: list.user_id,
       },
       where: {
         id: list.id,
@@ -140,12 +148,12 @@ export async function upsertList(list: List): Promise<List> {
       },
       update: {
         list_name: list.list_name,
-        user_uuid: list.user_uuid,
+        user_id: list.user_id,
         time_created: new Date(Date.now()),
       },
       create: {
         list_name: list.list_name,
-        user_uuid: list.user_uuid,
+        user_id: list.user_id,
         time_created: new Date(Date.now()),
       },
     });
