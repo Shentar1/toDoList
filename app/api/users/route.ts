@@ -8,16 +8,6 @@ import {
   getUserByUuid,
 } from "@/lib/services/usersService";
 import { BadRequestError } from "@/lib/errors/errors";
-
-/*export async function GET(request:NextRequest){
-    try{
-        const userId = await parseUserId(request);
-        const user = getUserById(userId);
-    }catch(error){
-        handleError(error);
-    }
-}*/
-
 export async function POST(request: NextRequest) {
   try {
     const upload = await request.json();
@@ -62,7 +52,7 @@ export async function DELETE(request: NextRequest) {
       deleteUserByUuid(userId);
     }
     return NextResponse.json({
-      status: 202,
+      status: 200,
       statusText: "user deleted successfully",
     });
   } catch (error) {

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       //create the list here
       await upsertList(upload);
       return NextResponse.json(upload, {
-        status: 201,
+        status: 200,
         statusText: "List created successfully",
       });
     } else {
@@ -60,7 +60,7 @@ export async function PUT(request: NextRequest) {
       //create the list here
       await upsertList(upload);
       return NextResponse.json({
-        status: 202,
+        status: 200,
         statusText: "List Updated Successfully",
       });
     } else {
@@ -77,7 +77,7 @@ export async function DELETE(request: NextRequest) {
 
     await deleteList(listId);
     return NextResponse.json({
-      status: 203,
+      status: 200,
       statusText: "List Deleted Successfully",
     });
   } catch (error) {
