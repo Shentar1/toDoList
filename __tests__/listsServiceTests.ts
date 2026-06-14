@@ -2,7 +2,6 @@ import "@testing-library/jest-dom";
 import * as listsService from "../lib/services/listsService";
 import { List } from "../lib/services/listsModels";
 import prisma from "../lib/prisma";
-import { DatabaseError, ValidationError } from "../lib/errors/errors";
 jest.mock("../lib/prisma", () => ({
   users: {
     findMany: jest.fn(),

@@ -1,12 +1,17 @@
-import {
-  BadRequestError,
-  ValidationError,
-  DatabaseError,
-} from "../errors/errors";
+import { BadRequestError } from "../errors/errors";
 import prisma from "../prisma";
 import { Job } from "./jobsModels";
 import { List } from "./listsModels";
 import { NextRequest } from "next/server";
+
+/**
+ * TODO: Create a button to create a shareable link for a list
+ *       Permit dynamic permissions (assign read, read/write, read/write/delete)
+ *       When clicked it should add view permissions to the user if signed in, or prompt for a login, and then add view permissions
+ *
+ * TODO: add option for reminders on tasks
+ * TODO: add option for categories
+ */
 
 /**
  *
@@ -170,7 +175,6 @@ export async function upsertList(list: List): Promise<List> {
  * @throws if the list is invalid
  */
 export async function deleteList(listId: number): Promise<boolean> {
-  //TODO: add validation that the list id to be deleted belongs to the current user
   try {
     await prisma.lists.delete({
       where: {

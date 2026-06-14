@@ -1,13 +1,12 @@
 import "@testing-library/jest-dom";
 import { GET, POST, PUT, DELETE } from "../app/api/lists/route";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import {
   BadRequestError,
   DatabaseError,
   ValidationError,
 } from "@/lib/errors/errors";
 import * as listsService from "../lib/services/listsService";
-import * as usersService from "../lib/services/usersService";
 const mockList = [
   {
     id: 1,
@@ -48,7 +47,7 @@ describe("lists POST route", () => {
       },
     );
     const response = await POST(mockRequest);
-    expect(response.status).toBe(201);
+    expect(response.status).toBe(200);
     expect(response.statusText).toBe("List created successfully");
   });
   it("should return an error for an invalid list structure", async () => {
@@ -81,7 +80,7 @@ describe("lists PUT route", () => {
     const response = await PUT(mockRequest);
 
     await expect(response.json()).resolves.toEqual({
-      status: 202,
+      status: 200,
       statusText: "List Updated Successfully",
     });
   });

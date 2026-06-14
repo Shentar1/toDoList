@@ -1,16 +1,7 @@
 import "@testing-library/jest-dom";
 import * as userService from "../lib/services/usersService";
 import { User } from "../lib/services/usersModels";
-import {
-  BadRequestError,
-  DatabaseError,
-  ValidationError,
-} from "../lib/errors/errors";
-import { NextRequest, NextResponse } from "next/server";
-import { UsersScalarFieldEnum } from "@/app/generated/prisma/internal/prismaNamespace";
-import { mock } from "node:test";
-import prisma from "../lib/prisma";
-import { handleError } from "@/lib/errors/handleError";
+import { BadRequestError } from "../lib/errors/errors";
 
 jest.mock("../lib/prisma", () => ({
   users: {
