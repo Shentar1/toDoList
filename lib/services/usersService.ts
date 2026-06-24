@@ -1,12 +1,11 @@
-import { BadRequestError } from "../errors/errors";
+import { BadRequestError, ValidationError } from "../errors/errors";
 import prisma from "../prisma";
 import { NextRequest } from "next/server";
 import { User } from "./usersModels";
 
 export async function parseUserUuid(request: NextRequest): Promise<string> {
   const searchParams = request.nextUrl.searchParams;
-  const userId = searchParams.get("userId") ?? "";
-
+  const userId = searchParams.get("userId");
   if (userId && userId.length === 36) {
     return userId;
   } else {
@@ -34,24 +33,20 @@ export async function getUserByUuid(uuid: string): Promise<User> {
   }
 }
 export async function getUserByUsernameAndPassword(
-  username: string,
-  password: string,
-): Promise<User> {
+  _username: string,
+  _password: string,
+): Promise<String> {
   try {
     const user = await prisma.users.findUniqueOrThrow({
       where: {
-        username: username,
-        password: password,
+        username: _username,
       },
-      include: {
-        lists: {
-          include: {
-            jobs: true,
-          },
-        },
+      select: {
+        uuid: true,
       },
     });
-    return user;
+    const userUuid = user.uuid;
+    return userUuid;
   } catch (error) {
     throw error;
   }
@@ -70,7 +65,7 @@ export async function createOrUpdateUser(user: User): Promise<User> {
       create: {
         username: user.username,
         password: user.password,
-        time_created: user.time_created ?? new Date(Date.now()),
+        time_created: new Date(Date.now()),
         role: user.role,
       },
     });
@@ -79,14 +74,26 @@ export async function createOrUpdateUser(user: User): Promise<User> {
     throw error;
   }
 }
-export async function validateUser(user: User): Promise<boolean> {
+export async function validateUser(
+  user: User,
+  createRequest = true,
+): Promise<boolean> {
   const username = user.username;
   const password = user.password;
   const timeCreated = user.time_created;
   const role = user.role;
-
   const validUsername =
     username.trim().length > 4 && typeof username === "string";
+  if (createRequest) {
+    let existingUser = await prisma.users.count({
+      where: {
+        username: username,
+      },
+    });
+    if (existingUser !== 0) {
+      throw new ValidationError("User already Exists");
+    }
+  }
   const validPassword =
     password.trim().length > 8 && typeof password === "string";
   const validTime =

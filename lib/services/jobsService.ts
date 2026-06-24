@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { Job } from "./jobsModels";
-import { BadRequestError, NotFoundError } from "../errors/errors";
+import { NotFoundError } from "../errors/errors";
 
 export async function getJobsByListId(
   userid: number,

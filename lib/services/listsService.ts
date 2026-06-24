@@ -20,7 +20,7 @@ import { NextRequest } from "next/server";
  */
 export async function parseListId(request: NextRequest): Promise<number> {
   const searchParams = request.nextUrl.searchParams;
-  const listIdParam = searchParams.get("listId") ?? "";
+  const listIdParam = searchParams.get("listId") || "";
   const listId: number = parseInt(listIdParam);
 
   if (listId && !isNaN(listId)) {
@@ -38,11 +38,11 @@ export async function parseListId(request: NextRequest): Promise<number> {
 export async function getListsByUser(userUuid: string): Promise<List[]> {
   try {
     const user = await prisma.users.findUniqueOrThrow({
-      where: {
-        uuid: userUuid,
-      },
       select: {
         id: true,
+      },
+      where: {
+        uuid: userUuid,
       },
     });
     const lists = await prisma.lists.findMany({

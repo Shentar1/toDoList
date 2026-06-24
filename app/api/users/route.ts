@@ -1,11 +1,9 @@
-import { User } from "@/lib/services/usersModels";
 import { NextRequest, NextResponse } from "next/server";
 import { handleError } from "@/lib/errors/handleError";
 import {
   validateUser,
   createOrUpdateUser,
   deleteUserByUuid,
-  getUserByUuid,
 } from "@/lib/services/usersService";
 import { BadRequestError } from "@/lib/errors/errors";
 export async function POST(request: NextRequest) {
