@@ -17,7 +17,7 @@ const mockUser = {
   uuid: "d23cb603-c4ec-4fdf-9730-cd7d1973950b",
   username: "abcde",
   password: "fghijklmn",
-  role: "user",
+  role: "User",
   time_created: new Date(Date.now()),
 } as User;
 const badUser = {
@@ -25,13 +25,16 @@ const badUser = {
   uuid: "123",
   username: "1234",
   password: "hatred",
-  role: "67",
+  role: "67" as string,
   timeCreated: "no",
 } as User;
 describe("POST", () => {
   it("should create a user if all the fields for a user are valid", async () => {
-    if (await userService.validateUser(mockUser)) {
-      const newUser = await userService.createOrUpdateUser(mockUser);
+    if (await userService.validateUser(mockUser.username, mockUser.password)) {
+      const newUser = await userService.createOrUpdateUser(
+        mockUser,
+        mockUser.uuid,
+      );
       expect(newUser.time_created).toEqual(mockUser.time_created);
       expect(newUser.username).toEqual(mockUser.username);
       expect(newUser.password).toEqual(mockUser.password);
@@ -41,6 +44,8 @@ describe("POST", () => {
     }
   });
   it("should throw a bad request error for an invalid user", async () => {
-    expect(userService.validateUser(badUser)).resolves.toBe(false);
+    expect(
+      userService.validateUser(badUser.username, badUser.password),
+    ).resolves.toBe(false);
   });
 });

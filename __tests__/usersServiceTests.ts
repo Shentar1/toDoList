@@ -24,7 +24,7 @@ const expectedUser = {
   username: "test",
   password: "secret",
   time_created: new Date(),
-  role: "user",
+  role: "User",
   lists: [],
 } as User;
 
@@ -94,12 +94,12 @@ describe("usersService", () => {
       const createdUser = {
         ...userInput,
         id: 2,
-        role: "user",
+        role: "User",
       } as User;
 
       mockedPrisma.users.upsert.mockResolvedValue(createdUser);
 
-      expect(usersService.createOrUpdateUser(userInput)).resolves.toBe(
+      expect(usersService.createOrUpdateUser(userInput, "")).resolves.toBe(
         createdUser,
       );
     });
@@ -110,20 +110,24 @@ describe("usersService", () => {
       const validUser = {
         username: "validUser",
         password: "moreThan8",
-        role: "admin",
+        role: "Admin",
       } as User;
 
-      expect(usersService.validateUser(validUser)).resolves.toBe(true);
+      expect(
+        usersService.validateUser(validUser.username, validUser.password),
+      ).resolves.toBe(true);
     });
 
     test("returns false for invalid user data", () => {
       const invalidUser = {
         username: "a",
         password: "short",
-        role: "",
+        role: "" as string,
       } as User;
 
-      expect(usersService.validateUser(invalidUser)).resolves.toBe(false);
+      expect(
+        usersService.validateUser(invalidUser.username, invalidUser.password),
+      ).resolves.toBe(false);
     });
   });
   describe("deleteUser", () => {

@@ -2,6 +2,7 @@ import { BadRequestError, ValidationError } from "../errors/errors";
 import prisma from "../prisma";
 import { NextRequest } from "next/server";
 import { User } from "./usersModels";
+import { Role } from "@/app/generated/prisma/enums";
 
 export async function parseUserUuid(request: NextRequest): Promise<string> {
   const searchParams = request.nextUrl.searchParams;
@@ -27,7 +28,10 @@ export async function getUserByUuid(uuid: string): Promise<User> {
         },
       },
     });
-    return user;
+    return {
+      ...user,
+      role: user.role as Role,
+    };
   } catch (error) {
     throw error;
   }
@@ -35,7 +39,7 @@ export async function getUserByUuid(uuid: string): Promise<User> {
 export async function getUserByUsernameAndPassword(
   _username: string,
   _password: string,
-): Promise<String> {
+): Promise<string> {
   try {
     const user = await prisma.users.findUniqueOrThrow({
       where: {
@@ -51,39 +55,39 @@ export async function getUserByUsernameAndPassword(
     throw error;
   }
 }
-export async function createOrUpdateUser(user: User): Promise<User> {
+export async function createOrUpdateUser(
+  user: User,
+  uuid?: string,
+): Promise<User> {
   try {
-    const newUser = prisma.users.upsert({
-      where: {
-        uuid: user.uuid,
-      },
+    const newUser = await prisma.users.upsert({
+      where: uuid
+        ? { uuid: uuid }
+        : { username: user.username },
       update: {
         username: user.username,
         password: user.password,
-        role: user.role,
       },
       create: {
         username: user.username,
         password: user.password,
         time_created: new Date(Date.now()),
-        role: user.role,
+        role: Role.User,
       },
     });
-    return newUser;
+    return {
+      ...newUser,
+      role: user.role as Role,
+    };
   } catch (error) {
     throw error;
   }
 }
 export async function validateUser(
-  user: User,
+  username: string,
+  password: string,
   createRequest = true,
 ): Promise<boolean> {
-  const username = user.username;
-  const password = user.password;
-  const timeCreated = user.time_created;
-  const role = user.role;
-  const validUsername =
-    username.trim().length > 4 && typeof username === "string";
   if (createRequest) {
     let existingUser = await prisma.users.count({
       where: {
@@ -94,23 +98,25 @@ export async function validateUser(
       throw new ValidationError("User already Exists");
     }
   }
-  const validPassword =
-    password.trim().length > 8 && typeof password === "string";
-  const validTime =
-    timeCreated instanceof Date && !isNaN(timeCreated.getTime());
-  const validRole = role.trim().length > 0 && typeof role === "string";
+  const validUsername =
+    username.trim().length > 4 && typeof username === "string";
 
-  return validPassword && validUsername && validTime && validRole;
+  const validPassword =
+    password.trim().length > 4 && typeof password === "string";
+
+  return validPassword && validUsername;
 }
-export async function deleteUserByUuid(uuid: string): Promise<boolean> {
+export async function deleteUserByUuid(uuid: string): Promise<User> {
   try {
-    const userId = (await getUserByUuid(uuid)).id;
-    prisma.users.delete({
+    const user = await prisma.users.delete({
       where: {
-        id: userId,
+        uuid: uuid,
       },
     });
-    return true;
+    return {
+      ...user,
+      role: user.role as Role,
+    };
   } catch (error) {
     throw error;
   }

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { BadRequestError, NotFoundError, ValidationError } from "./errors";
-import { DatabaseError } from "pg";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
 export function handleError(error: unknown): NextResponse {
@@ -14,9 +13,6 @@ export function handleError(error: unknown): NextResponse {
 
   if (error instanceof ValidationError) {
     return NextResponse.json({ error: error.message }, { status: 422 });
-  }
-  if (error instanceof DatabaseError) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
   }
   if (error instanceof PrismaClientKnownRequestError) {
     const prismaStatusMap: Record<string, number> = {

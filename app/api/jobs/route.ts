@@ -27,12 +27,12 @@ export async function POST(request: NextRequest) {
   try {
     const job = await request.json();
     if (await validateJob(job)) {
-      NextResponse.json(await createOrUpdateJob(job), { status: 200 });
+      return NextResponse.json(await createOrUpdateJob(job), { status: 200 });
     } else {
       throw new BadRequestError();
     }
   } catch (error) {
-    handleError(error);
+    return handleError(error);
   }
 }
 
@@ -40,12 +40,12 @@ export async function PUT(request: NextRequest) {
   try {
     const job = await request.json();
     if (await validateJob(job)) {
-      NextResponse.json(await createOrUpdateJob(job), { status: 200 });
+      return NextResponse.json(await createOrUpdateJob(job), { status: 200 });
     } else {
       throw new BadRequestError();
     }
   } catch (error) {
-    handleError(error);
+    return handleError(error);
   }
 }
 
@@ -56,7 +56,7 @@ export async function DELETE(request: NextRequest) {
     const id = idParam ? parseInt(idParam) : NaN;
     if (!isNaN(id)) {
       deleteJobById(id);
-      NextResponse.json({
+      return NextResponse.json({
         status: 200,
         statusText: "Job Deleted Successfully",
       });
@@ -64,6 +64,6 @@ export async function DELETE(request: NextRequest) {
       throw new BadRequestError();
     }
   } catch (error) {
-    handleError(error);
+    return handleError(error);
   }
 }

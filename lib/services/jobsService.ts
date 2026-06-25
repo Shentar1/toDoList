@@ -69,6 +69,7 @@ export async function createOrUpdateJob(job: Job) {
         job_description: job.job_description,
         list_id: job.list_id,
         status: job.status,
+        time_created: new Date(Date.now()),
       },
       update: {
         job_description: job.job_description,
