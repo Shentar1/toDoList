@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleError } from "@/lib/errors/handleError";
-import { User } from "@/lib/services/usersModels";
+import { userDTO } from "@/lib/services/usersModels";
 import {
   validateUser,
   createOrUpdateUser,
   deleteUserByUuid,
-  getUserByUsernameAndPassword,
   getUserByUuid,
 } from "@/lib/services/usersService";
 import { BadRequestError, ValidationError } from "@/lib/errors/errors";
@@ -20,9 +19,14 @@ export async function POST(request: NextRequest) {
     }
     if (await validateUser(upload.username, upload.password)) {
       const user = await createOrUpdateUser(upload);
-
+      const responseUser: userDTO = {
+        uuid: user.uuid,
+        lists: user.lists,
+        role: user.role,
+        time_created: user.time_created,
+      };
       return NextResponse.json(
-        { user },
+        { responseUser },
         { status: 200, statusText: "User created successfully" },
       );
     } else {
@@ -54,8 +58,14 @@ export async function PUT(request: NextRequest) {
       userData.username = newUsername;
       userData.password = newPassword;
       const user = await createOrUpdateUser(userData, uuid);
+      const responseUser: userDTO = {
+        uuid: user.uuid,
+        lists: user.lists,
+        role: user.role,
+        time_created: user.time_created,
+      };
       return NextResponse.json(
-        { user },
+        { responseUser },
         { status: 200, statusText: "User updated successfully" },
       );
     } else {
@@ -71,8 +81,14 @@ export async function DELETE(request: NextRequest) {
     const userId = await request.headers.get("userId");
     if (userId) {
       const user = await deleteUserByUuid(userId);
+      const responseUser: userDTO = {
+        uuid: user.uuid,
+        lists: user.lists,
+        role: user.role,
+        time_created: user.time_created,
+      };
       return NextResponse.json(
-        { user },
+        { responseUser },
         {
           status: 200,
           statusText: "user deleted successfully",

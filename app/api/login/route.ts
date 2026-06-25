@@ -8,14 +8,21 @@ import { handleError } from "@/lib/errors/handleError";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { sessionData } from "@/lib/services/sessionModels";
+import { userDTO } from "@/lib/services/usersModels";
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
     const username = data.username;
     const password = data.password;
-    const userId = await getUserByUsernameAndPassword(username, password);
-    return NextResponse.json(userId, {
+    const user = await getUserByUsernameAndPassword(username, password);
+    const responseDTO: userDTO = {
+      uuid: user.uuid,
+      lists: user.lists,
+      role: user.role,
+      time_created: user.time_created,
+    };
+    return NextResponse.json(responseDTO, {
       status: 200,
     });
   } catch (error) {

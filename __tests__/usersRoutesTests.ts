@@ -26,7 +26,7 @@ const badUser = {
   username: "1234",
   password: "hatred",
   role: "67" as string,
-  timeCreated: "no",
+  time_created: "no" as unknown as Date,
 } as User;
 describe("POST", () => {
   it("should create a user if all the fields for a user are valid", async () => {

@@ -1,7 +1,7 @@
 import { BadRequestError, ValidationError } from "../errors/errors";
 import prisma from "../prisma";
 import { NextRequest } from "next/server";
-import { User } from "./usersModels";
+import { User, userDTO } from "./usersModels";
 import { Role } from "@/app/generated/prisma/enums";
 
 export async function parseUserUuid(request: NextRequest): Promise<string> {
@@ -28,6 +28,13 @@ export async function getUserByUuid(uuid: string): Promise<User> {
         },
       },
     });
+    if (
+      user.role !== "Admin" &&
+      user.role !== "User" &&
+      user.role !== "Owner"
+    ) {
+      throw new Error("Corrupted Data - Contact Customer Service");
+    }
     return {
       ...user,
       role: user.role as Role,
@@ -37,20 +44,27 @@ export async function getUserByUuid(uuid: string): Promise<User> {
   }
 }
 export async function getUserByUsernameAndPassword(
-  _username: string,
-  _password: string,
-): Promise<string> {
+  username: string,
+  password: string,
+): Promise<User> {
   try {
     const user = await prisma.users.findUniqueOrThrow({
       where: {
-        username: _username,
-      },
-      select: {
-        uuid: true,
+        username: username,
+        password: password,
       },
     });
-    const userUuid = user.uuid;
-    return userUuid;
+    if (
+      user.role !== "Admin" &&
+      user.role !== "Owner" &&
+      user.role !== "User"
+    ) {
+      throw new Error("Corrupted data - Contact Customer Support");
+    }
+    return {
+      ...user,
+      role: user.role as Role,
+    };
   } catch (error) {
     throw error;
   }
@@ -61,9 +75,7 @@ export async function createOrUpdateUser(
 ): Promise<User> {
   try {
     const newUser = await prisma.users.upsert({
-      where: uuid
-        ? { uuid: uuid }
-        : { username: user.username },
+      where: uuid ? { uuid: uuid } : { username: user.username },
       update: {
         username: user.username,
         password: user.password,

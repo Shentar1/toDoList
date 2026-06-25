@@ -62,7 +62,6 @@ export async function getListsByUser(userUuid: string): Promise<List[]> {
         id: list.id,
         time_created: list.time_created,
         list_name: list.list_name,
-        user_id: list.user_id,
         jobs: list.jobs.map(
           (j: Job) =>
             ({
@@ -174,14 +173,14 @@ export async function upsertList(list: List): Promise<List> {
  * @returns a promise that resolves to true if the operation is successful
  * @throws if the list is invalid
  */
-export async function deleteList(listId: number): Promise<boolean> {
+export async function deleteList(listId: number): Promise<List> {
   try {
-    await prisma.lists.delete({
+    const list = await prisma.lists.delete({
       where: {
         id: listId,
       },
     });
-    return true;
+    return list;
   } catch (error) {
     throw error;
   }

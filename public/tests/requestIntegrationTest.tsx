@@ -1,45 +1,53 @@
 "use client";
 
-import { Job } from "@/lib/services/jobsModels";
-import { List } from "@/lib/services/listsModels";
-import { User } from "@/lib/services/usersModels";
-import { create } from "domain";
+import { jobDTO } from "@/lib/services/jobsModels";
+import { listDTO } from "@/lib/services/listsModels";
+import { userDTO } from "@/lib/services/usersModels";
 import { useEffect } from "react";
 
 const username = `admin`;
 const password = `admin`;
-const loginURL = `http://localhost:3000/api/login`;
-const userURL = `http://localhost:3000/api/users`;
+const listName = `list1`;
+const jobName = `job1`;
+const loginURL = `/api/login`;
+const userURL = `/api/users`;
+const listURL = `/api/lists?userId=`;
 
 async function createUserTest(username: string, password: string) {
   const response = await fetch(userURL, {
     method: "POST",
     body: JSON.stringify({ username: username, password: password }),
   });
-  return await response.json();
+  return (await response.json()) as userDTO;
 }
+async function createListTest(userId: string) {
+  const response = await fetch(listURL + userId, {
+    method: "POST",
+    body: JSON.stringify({ listName: listName, userId: userId }),
+  });
+  return (await response.json()) as listDTO;
+}
+async function createJobTest() {}
 async function loginTest(username: string, password: string) {
   const response = await fetch(loginURL, {
     method: "POST",
     body: JSON.stringify({ username: username, password: password }),
   });
-  return await response.json();
+  return (await response.json()) as userDTO;
 }
 async function getListsTest(userId: string) {
   const listUrl = `/api/lists?userId=${userId}`;
   const response = await fetch(listUrl);
-  return await response.json();
+  return (await response.json()) as listDTO[];
 }
-async function getJobsTest(list: List) {
-  let jobs = [] as Job[];
+async function getJobsTest(list: listDTO) {
+  let jobs = [] as jobDTO[];
   if (list.jobs) {
     for (let j = 0; j < list.jobs.length; j++) {
       const jobsUrl = `/api/jobs?jobId=${list.jobs[j].id}`;
       const response = await fetch(jobsUrl);
       const job = await response.json();
-      console.log(job);
     }
-    jobs = list.jobs;
   }
   return jobs;
 }
@@ -56,8 +64,11 @@ async function updateUserTest(
       uuid: uuid,
     }),
   });
-  return response.json();
+  return (await response.json()) as userDTO;
 }
+
+async function updateListTest() {}
+async function updateJobTest() {}
 async function deleteUserTest(uuid: string) {
   const response = await fetch(userURL, {
     method: "DELETE",
@@ -65,16 +76,19 @@ async function deleteUserTest(uuid: string) {
       userId: uuid,
     },
   });
-  return response.json();
+  return await response.json();
 }
-
+async function deleteListTest() {}
+async function deleteJobTest() {}
 export default function runTests() {
   useEffect(() => {
     async function run() {
       const user = await createUserTest(username, password);
       console.log(user);
-      const userId = await loginTest(username, password);
+      const userId = (await loginTest(username, password)).uuid;
       console.log(userId);
+      const list = await createListTest(userId);
+      console.log(list);
       let updatedUser = await updateUserTest(userId, "admin2", "admin2");
       console.log(updatedUser);
       updatedUser = await updateUserTest(userId, "admin3");
@@ -87,8 +101,7 @@ export default function runTests() {
         const jobs = await getJobsTest(lists[i]);
         console.log(jobs);
       }
-      const deleteUserResponse = await deleteUserTest(userId);
-      console.log(deleteUserResponse.statusText);
+      console.log(await deleteUserTest(userId));
     }
     run();
   });

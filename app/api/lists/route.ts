@@ -7,8 +7,9 @@ import {
   deleteList,
 } from "@/lib/services/listsService";
 import { NextRequest, NextResponse } from "next/server";
-import { parseUserUuid } from "@/lib/services/usersService";
+import { parseUserUuid, getUserByUuid } from "@/lib/services/usersService";
 import { parseListId } from "@/lib/services/listsService";
+import { List, listDTO } from "@/lib/services/listsModels";
 
 // Get all lists - GET api/lists?userid=<userid>
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -17,7 +18,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const lists = await getListsByUser(userId);
 
-    return NextResponse.json(lists, { status: 200 });
+    const responseDTO: listDTO[] = lists.map((list) => ({
+      list_name: list.list_name,
+      jobs: list.jobs,
+    }));
+    return NextResponse.json(responseDTO, { status: 200 });
   } catch (error) {
     return handleError(error);
   }
@@ -31,16 +36,27 @@ export async function POST(request: NextRequest) {
     if (!upload || typeof upload !== "object") {
       return handleError(new BadRequestError("A list is required"));
     }
+    const userId = (await getUserByUuid(upload.userId)).id;
+    const list: List = {
+      id: 0,
+      list_name: upload.listName,
+      user_id: userId,
+    };
     //validate the list data and throw an error if the data is invalid
-    if (await validateList(upload)) {
+    if (await validateList(list)) {
       //create the list here
-      await upsertList(upload);
-      return NextResponse.json(upload, {
+      const newList = await upsertList(list);
+
+      const responseDTO: listDTO = {
+        list_name: newList.list_name,
+        jobs: newList.jobs,
+      };
+      return NextResponse.json(responseDTO, {
         status: 200,
         statusText: "List created successfully",
       });
     } else {
-      return handleError(new Error());
+      throw new Error();
     }
   } catch (error) {
     return handleError(error);
@@ -56,9 +72,17 @@ export async function PUT(request: NextRequest) {
       return handleError(new BadRequestError("A list is required"));
     }
     //validate the list data and throw an error if the data is invalid
-    if (await validateList(upload)) {
+    const list: List = {
+      id: upload.id,
+      list_name: upload.list_name,
+    };
+    if (await validateList(list)) {
       //create the list here
-      await upsertList(upload);
+      const newList = await upsertList(list);
+      const responseDTO: listDTO = {
+        list_name: newList.list_name,
+        jobs: newList.jobs,
+      };
       return NextResponse.json({
         status: 200,
         statusText: "List Updated Successfully",
@@ -75,8 +99,13 @@ export async function DELETE(request: NextRequest) {
   try {
     const listId = await parseListId(request);
 
-    await deleteList(listId);
-    return NextResponse.json({
+    const list = await deleteList(listId);
+
+    const responseDTO: listDTO = {
+      list_name: list.list_name,
+      jobs: list.jobs,
+    };
+    return NextResponse.json(list, {
       status: 200,
       statusText: "List Deleted Successfully",
     });

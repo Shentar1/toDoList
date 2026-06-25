@@ -2,10 +2,7 @@ import prisma from "@/lib/prisma";
 import { Job } from "./jobsModels";
 import { NotFoundError } from "../errors/errors";
 
-export async function getJobsByListId(
-  userid: number,
-  listId: number,
-): Promise<Job[]> {
+export async function getJobsByListId(listId: number): Promise<Job[]> {
   if (!listId || isNaN(listId)) {
     throw new Error("List ID is required");
   }
@@ -82,10 +79,11 @@ export async function createOrUpdateJob(job: Job) {
   }
 }
 
-export async function deleteJobById(id: number) {
-  prisma.jobs.delete({
+export async function deleteJobById(id: number): Promise<Job> {
+  const job = prisma.jobs.delete({
     where: {
       id: id,
     },
   });
+  return job;
 }

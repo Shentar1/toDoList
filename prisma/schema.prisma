@@ -27,7 +27,7 @@ model jobs {
 model lists {
   id           Int       @id @default(autoincrement())
   list_name    String    @db.VarChar
-  user_id    Int   
+  user_id      Int   
   time_created DateTime @db.Timestamp(6)
   jobs         jobs[]
   users        users?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "user_lists")
