@@ -6,7 +6,9 @@ export type Job = {
   time_created: Date;
 };
 export type jobDTO = {
+  id: number;
+  list_id: number;
   job_description: string | null;
   status: string | null;
-  time_created: Date;
+  time_created?: Date;
 };

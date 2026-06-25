@@ -7,6 +7,7 @@ export type List = {
   user_id?: number;
 };
 export type listDTO = {
+  id: number;
   list_name: string;
   jobs?: Job[];
 };

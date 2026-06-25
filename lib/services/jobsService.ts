@@ -9,7 +9,7 @@ export async function getJobsByListId(listId: number): Promise<Job[]> {
   try {
     const jobs = await prisma.jobs.findMany({
       where: {
-        id: listId,
+        list_id: listId,
       },
     });
     if (jobs.length === 0) {
@@ -32,16 +32,16 @@ export async function getJobsByListId(listId: number): Promise<Job[]> {
  * @returns true if the job is valid, false if it is invalid
  */
 export async function validateJob(job: Job) {
-  const id = job.id;
   const job_description = job.job_description;
   const status = job.status;
+  const listId = job.list_id;
 
-  const idValid = id && !isNaN(id);
+  const idValid = !isNaN(listId);
   const job_descriptionValid =
     typeof job_description === "string" && job_description.trim().length;
   const statusValid = typeof status === "string" && status.trim().length > 0;
 
-  return idValid && job_descriptionValid && statusValid;
+  return job_descriptionValid && statusValid && idValid;
 }
 
 export async function getJobById(id: number): Promise<Job> {
@@ -60,7 +60,7 @@ export async function createOrUpdateJob(job: Job) {
   try {
     return await prisma.jobs.upsert({
       where: {
-        id: job.id,
+        id: job.id || 0,
       },
       create: {
         job_description: job.job_description,
@@ -69,8 +69,8 @@ export async function createOrUpdateJob(job: Job) {
         time_created: new Date(Date.now()),
       },
       update: {
-        job_description: job.job_description,
         list_id: job.list_id,
+        job_description: job.job_description,
         status: job.status,
       },
     });
