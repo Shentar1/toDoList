@@ -25,10 +25,10 @@ export async function POST(request: NextRequest) {
         role: user.role,
         time_created: user.time_created,
       };
-      return NextResponse.json(
-        { responseUser },
-        { status: 200, statusText: "User created successfully" },
-      );
+      return NextResponse.json(responseUser, {
+        status: 200,
+        statusText: "User created successfully",
+      });
     } else {
       throw new Error();
     }

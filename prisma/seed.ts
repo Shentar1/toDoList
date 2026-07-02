@@ -2,6 +2,7 @@ import "dotenv/config";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../app/generated/prisma/client";
+import { Role } from "../app/generated/prisma/client";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const pool = new Pool({ connectionString });
@@ -14,61 +15,61 @@ async function main() {
     {
       username: "Alice",
       password: "alice@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
     {
       username: "Bob",
       password: "bob@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
     {
       username: "Carol",
       password: "carol@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
     {
       username: "Dave",
       password: "dave@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
     {
       username: "Eve",
       password: "eve@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
     {
       username: "Frank",
       password: "frank@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
     {
       username: "Grace",
       password: "grace@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
     {
       username: "Heidi",
       password: "heidi@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
     {
       username: "Ivan",
       password: "ivan@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
     {
       username: "Judy",
       password: "judy@example.com",
-      role: "user",
+      role: Role.User,
       time_created: new Date(Date.now()),
     },
   ];

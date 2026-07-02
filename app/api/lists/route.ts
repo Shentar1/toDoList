@@ -1,4 +1,4 @@
-import { BadRequestError } from "@/lib/errors/errors";
+import { BadRequestError, ValidationError } from "@/lib/errors/errors";
 import { handleError } from "@/lib/errors/handleError";
 import {
   getListsByUser,
@@ -8,7 +8,6 @@ import {
 } from "@/lib/services/listsService";
 import { NextRequest, NextResponse } from "next/server";
 import { parseUserUuid, getUserByUuid } from "@/lib/services/usersService";
-import { parseListId } from "@/lib/services/listsService";
 import { List, listDTO } from "@/lib/services/listsModels";
 
 // Get all lists - GET api/lists?userid=<userid>
@@ -38,10 +37,10 @@ export async function POST(request: NextRequest) {
       return handleError(new BadRequestError("A list is required"));
     }
 
-    const userId = (await getUserByUuid(upload.userId)).id;
+    const userId = (await getUserByUuid(upload.user_id)).id;
     const list: List = {
-      ...upload,
-      id: 0,
+      id: upload.id,
+      list_name: upload.list_name,
       user_id: userId,
     };
     //validate the list data and throw an error if the data is invalid
@@ -59,7 +58,7 @@ export async function POST(request: NextRequest) {
         statusText: "List created successfully",
       });
     } else {
-      throw new Error();
+      throw new ValidationError();
     }
   } catch (error) {
     return handleError(error);
@@ -72,7 +71,7 @@ export async function PUT(request: NextRequest) {
     const upload = await request.json();
     //require an upload body
     if (!upload || typeof upload !== "object") {
-      return handleError(new BadRequestError("A list is required"));
+      throw new BadRequestError("A list is required");
     }
     //validate the list data and throw an error if the data is invalid
     const list: List = {
@@ -91,7 +90,7 @@ export async function PUT(request: NextRequest) {
         statusText: "List Updated Successfully",
       });
     } else {
-      return handleError(new Error("An unknown issue occured"));
+      throw new ValidationError();
     }
   } catch (error) {
     return handleError(error);
@@ -115,7 +114,7 @@ export async function DELETE(request: NextRequest) {
         statusText: "List Deleted Successfully",
       });
     } else {
-      throw new Error();
+      throw new BadRequestError();
     }
   } catch (error) {
     return handleError(error);

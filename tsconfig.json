@@ -29,7 +29,8 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "public/tests/requestIntegrationTest.tsx"
+    "public/tests/requestIntegrationTest.tsx",
+    ".next/dev/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

@@ -88,7 +88,7 @@ describe("getListsByUser", () => {
       {
         id: 1,
         list_name: "My List 1",
-        user_id: 1,
+        time_created: new Date(Date.now()),
         jobs: [
           {
             id: 1,
@@ -101,7 +101,7 @@ describe("getListsByUser", () => {
       {
         id: 2,
         list_name: "My List 2",
-        user_id: 1,
+        time_created: new Date(Date.now()),
         jobs: [],
       },
     ];
@@ -176,7 +176,7 @@ describe("updateList", () => {
 });
 
 describe("deleteList", () => {
-  it("should return true if prisma deletes the row in the database", async () => {
+  it("should return the deleted object if prisma deletes the row in the database", async () => {
     let lists = [
       {
         id: 1,
@@ -188,10 +188,10 @@ describe("deleteList", () => {
       let deleteIndex = lists.findIndex((l) => {
         l.id === 1;
       });
-      lists.splice(deleteIndex);
+      return lists.splice(deleteIndex);
     });
-    const result = await listsService.deleteList(1);
-    expect(result).toBe(true);
+    await listsService.deleteList(1);
+    expect(lists.length).toBe(0);
   });
   it("should throw a database error if prisma returns an error", async () => {
     let lists = [
