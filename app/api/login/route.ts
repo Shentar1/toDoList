@@ -9,6 +9,7 @@ import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { sessionData } from "@/lib/services/sessionModels";
 import { userDTO } from "@/lib/services/usersModels";
+import { BadRequestError } from "@/lib/errors/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,10 +23,30 @@ export async function POST(request: NextRequest) {
       role: user.role,
       time_created: user.time_created,
     };
+
+    const session = await getIronSession<sessionData>(await cookies(), {
+      password: "yPNHviX2tjsMevyiorgELH6W5K9kMeJC",
+      cookieName: "toDoListSession",
+    });
+    session.uuid = user.uuid;
+    session.isLoggedIn = true;
+    await session.save();
+
     return NextResponse.json(responseDTO, {
       status: 200,
     });
   } catch (error) {
     return handleError(error);
+  }
+}
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getIronSession<sessionData>(await cookies(), {
+      password: "yPNHviX2tjsMevyiorgELH6W5K9kMeJC",
+      cookieName: "toDoListSession",
+    });
+    return NextResponse.json(session, { status: 200 });
+  } catch (error) {
+    throw new BadRequestError("Failed to retrieve session data");
   }
 }
