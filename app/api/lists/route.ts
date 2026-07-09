@@ -5,6 +5,7 @@ import {
   validateList,
   upsertList,
   deleteList,
+  getListById,
 } from "@/lib/services/listsService";
 import { NextRequest, NextResponse } from "next/server";
 import { parseUserUuid, getUserByUuid } from "@/lib/services/usersService";
@@ -37,9 +38,9 @@ export async function POST(request: NextRequest) {
       return handleError(new BadRequestError("A list is required"));
     }
 
-    const userId = (await getUserByUuid(upload.user_id)).id;
+    const userId = (await getUserByUuid(upload.userId)).id;
     const list: List = {
-      id: upload.id,
+      id: 0,
       list_name: upload.list_name,
       user_id: userId,
     };
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
         statusText: "List created successfully",
       });
     } else {
-      throw new ValidationError();
+      throw new ValidationError("Invalid List Data");
     }
   } catch (error) {
     return handleError(error);
@@ -90,7 +91,7 @@ export async function PUT(request: NextRequest) {
         statusText: "List Updated Successfully",
       });
     } else {
-      throw new ValidationError();
+      throw new ValidationError("Invalid List Data");
     }
   } catch (error) {
     return handleError(error);
@@ -99,20 +100,27 @@ export async function PUT(request: NextRequest) {
 //delete list - DELETE api/lists/<listId>
 export async function DELETE(request: NextRequest) {
   try {
-    const listId = await request.json();
-
+    const data = (await request.json()) as { listId: number; uuid: string };
+    const listId = data.listId;
+    const uuid = data.uuid;
     if (!isNaN(listId)) {
-      const list = await deleteList(listId);
+      const user = await getUserByUuid(uuid);
+      const list = await getListById(listId);
+      if (user.id === list.user_id) {
+        await deleteList(listId);
 
-      const responseDTO: listDTO = {
-        id: list.id,
-        list_name: list.list_name,
-        jobs: list.jobs,
-      };
-      return NextResponse.json(responseDTO, {
-        status: 200,
-        statusText: "List Deleted Successfully",
-      });
+        const responseDTO: listDTO = {
+          id: list.id,
+          list_name: list.list_name,
+          jobs: list.jobs,
+        };
+        return NextResponse.json(responseDTO, {
+          status: 200,
+          statusText: "List Deleted Successfully",
+        });
+      } else {
+        throw new BadRequestError();
+      }
     } else {
       throw new BadRequestError();
     }

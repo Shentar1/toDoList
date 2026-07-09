@@ -12,7 +12,10 @@ export function handleError(error: unknown): NextResponse {
   }
 
   if (error instanceof ValidationError) {
-    return NextResponse.json({ error: error.message }, { status: 422 });
+    return NextResponse.json(
+      { error: error.message || "Invalid Request Data" },
+      { status: 422 },
+    );
   }
   if (error instanceof PrismaClientKnownRequestError) {
     const prismaStatusMap: Record<string, number> = {

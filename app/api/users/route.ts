@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
     if (await validateUser(upload.username, upload.password)) {
       const user = await createOrUpdateUser(upload);
       const responseUser: userDTO = {
+        username: user.username,
         uuid: user.uuid,
         lists: user.lists,
         role: user.role,
@@ -59,6 +60,7 @@ export async function PUT(request: NextRequest) {
       userData.password = newPassword;
       const user = await createOrUpdateUser(userData, uuid);
       const responseUser: userDTO = {
+        username: user.username,
         uuid: user.uuid,
         lists: user.lists,
         role: user.role,
@@ -82,6 +84,7 @@ export async function DELETE(request: NextRequest) {
     if (userId) {
       const user = await deleteUserByUuid(userId);
       const responseUser: userDTO = {
+        username: user.username,
         uuid: user.uuid,
         lists: user.lists,
         role: user.role,

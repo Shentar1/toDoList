@@ -77,6 +77,18 @@ export async function getListsByUser(userUuid: string): Promise<List[]> {
     throw error;
   }
 }
+export async function getListById(id: number): Promise<List> {
+  try {
+    const list = prisma.lists.findUniqueOrThrow({
+      where: {
+        id: id,
+      },
+    });
+    return list;
+  } catch (error) {
+    throw error;
+  }
+}
 /**
  *
  * @param list a list object that is to be validated

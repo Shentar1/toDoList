@@ -11,6 +11,7 @@ export type User = {
   lists?: List[];
 };
 export type userDTO = {
+  username: string;
   uuid: string;
   time_created: Date;
   role: Role;

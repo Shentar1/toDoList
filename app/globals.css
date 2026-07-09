@@ -19,6 +19,24 @@
   }
 }
 
+@layer components {
+  .btnBlue {
+    background-color: var(--color-blue-600);
+    color: white;
+  }
+  .btnWhite {
+    background-color: #ccc;
+    color: black;
+  }
+  a {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #000;
+  }
+  a:hover {
+    border-color: #aa0;
+  }
+}
 body {
   background: var(--background);
   color: var(--foreground);

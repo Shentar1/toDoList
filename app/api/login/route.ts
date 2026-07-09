@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
     const password = data.password;
     const user = await getUserByUsernameAndPassword(username, password);
     const responseDTO: userDTO = {
+      username: user.username,
       uuid: user.uuid,
       lists: user.lists,
       role: user.role,
@@ -29,7 +30,9 @@ export async function POST(request: NextRequest) {
       cookieName: "toDoListSession",
     });
     session.uuid = user.uuid;
-    session.isLoggedIn = true;
+    ((session.username = user.username),
+      (session.password = user.password),
+      (session.isLoggedIn = true));
     await session.save();
 
     return NextResponse.json(responseDTO, {
@@ -48,5 +51,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(session, { status: 200 });
   } catch (error) {
     throw new BadRequestError("Failed to retrieve session data");
+  }
+}
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getIronSession<sessionData>(await cookies(), {
+      password: "yPNHviX2tjsMevyiorgELH6W5K9kMeJC",
+      cookieName: "toDoListSession",
+    });
+    session.destroy();
+    return NextResponse.json(200);
+  } catch (error) {
+    throw new BadRequestError("Logout failed... Guess you're stuck here");
   }
 }
